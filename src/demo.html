@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Authentication</title>
+<style>
+/* General Styles */
+body {
+margin: 0;
+font-family: Arial sans-serif;
+background-color: #f4f4f9;
+display: flex;
+flex-direction: column;
+min-height: 100vh;
+}
+
+/* Header Styles */
+header {
+position: fixed;
+width: 100%;
+top: 0;
+right: 0;
+z-index: 1000;
+display: flex;
+align-items: center;
+justify-content: space-between;
+background: rgb(0, 0, 0);
+color: white;
+padding: 10px 20px;
+box-sizing: border-box;
+}
+
+.para p {
+color: white;
+font-size: x-large;
+font-weight: bolder;
+}
+
+.logo img {
+width: 60px;
+height: 40px;
+}
+
+.navbar {
+display: flex;
+list-style: none;
+padding: 0;
+margin: 0;
+}
+
+.navbar li {
+position: relative;
+}
+
+.navbar a {
+font-size: 20px;
+padding: 10px 20px;
+color: #fff;
+font-weight: bold;
+text-decoration: none;
+}
+
+.navbar a::after {
+content: '';
+width: 0;
+height: 3px;
+background: #fff;
+position: absolute;
+bottom: -4px;
+left: 0;
+transition: 0.3s;
+}
+
+.navbar a:hover::after {
+width: 100%;
+background: #5a67d8;
+}
+
+.header-btn a {
+background: white;
+color: black;
+border-radius: 0.5rem;
+padding: 8px 16px;
+text-decoration: none;
+font-weight: bold;
+}
+
+.header-btn a:hover {
+background: #5a67d8;
+color: white;
+}
+
+/* Main Container Styles */
+.auth-container {
+flex: 1;
+display: flex;
+justify-content: center;
+align-items: center;
+padding-top: 80px;
+/* To prevent overlap with fixed header */
+}
+
+.form-container {
+background: rgba(255, 255, 255, 0.95);
+padding: 30px;
+border-radius: 10px;
+box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+width: 100%;
+max-width: 500px;
+box-sizing: border-box;
+}
+
+/* Tabs */
+.tab-header {
+display: flex;
+justify-content: center;
+margin-bottom: 20px;
+}
+
+.tab-header button {
+background: none;
+border: none;
+padding: 10px 20px;
+font-size: 1.2rem;
+cursor: pointer;
+transition: color 0.3s, border-bottom 0.3s;
+outline: none;
+}
+
+.tab-header button.active {
+color: #5a67d8;
+border-bottom: 2px solid #5a67d8;
+}
+
+/* Form Styles */
+form {
+display: none;
+}
+
+form.active {
+display: block;
+}
+
+.form-group {
+margin-bottom: 15px;
+position: relative;
+}
+
+.form-group label {
+display: block;
+margin-bottom: 5px;
+font-weight: bold;
+}
+
+.form-group input {
+width: 100%;
+padding: 10px 40px 10px 10px;
+border: 1px solid #ccc;
+border-radius: 4px;
+box-sizing: border-box;
+}
+
+.form-group img.icon {
+position: absolute;
+top: 35px;
+right: 10px;
+width: 20px;
+height: 20px;
+cursor: pointer;
+}
+
+.buttons {
+display: flex;
+justify-content: space-between;
+}
+
+.buttons button {
+width: 48%;
+padding: 10px;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+font-size: 16px;
+color: white;
+transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+background-color: #007bff;
+}
+
+.btn-primary:hover {
+background-color: #0056b3;
+}
+
+.btn-secondary {
+background-color: #dc3545;
+}
+
+.btn-secondary:hover {
+background-color: #c82333;
+}
+
+.forgot-password,
+.signup-link {
+text-align: center;
+margin-top: 10px;
+}
+
+.forgot-password a,
+.signup-link a {
+color: #007bff;
+text-decoration: none;
+transition: color 0.3s ease;
+}
+
+.forgot-password a:hover,
+.signup-link a:hover {
+color: #0056b3;
+text-decoration: underline;
+}
+
+/* Feedback Message */
+.feedback {
+margin-top: 5px;
+font-size: 0.9rem;
+}
+
+/* Footer Styles */
+.foot {
+font-family: 'Roboto', sans-serif;
+background-color: white;
+color: rgb(22, 228, 53);
+margin: 0;
+padding: 0;
+}
+
+footer {
+padding: 5px 10px; /* Reduced padding */
+background-color: black;
+}
+
+.footer-bottom {
+text-align: center;
+padding: 10px 0; /* Reduced padding */
+}
+
+.footer-bottom p {
+margin: 0;
+font-size: 14px;
+color: white;
+}
+
+.footer-bottom ul {
+list-style: none;
+padding: 0;
+margin: 5px 0 0 0; /* Reduced margin */
+}
+
+.footer-bottom ul li {
+display: inline;
+margin-right: 5px; /* Reduced margin */
+}
+
+.footer-bottom ul li a {
+color: black;
+text-decoration: none;
+}
+
+.social-media {
+margin-top: 10px; /* Reduced margin */
+}
+
+.social-media a {
+margin: 0 5px; /* Reduced margin */
+text-decoration: none;
+}
+
+.social-media a img {
+width: 24px;
+height: 24px;
+}
+
+a {
+text-decoration: none;
+color: white;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+.navbar {
+display: none;
+}
+
+header {
+flex-direction: column;
+align-items: flex-start;
+}
+
+.header-btn {
+margin-top: 10px;
+}
+}
+</style>
+</head>
+
+<body>
+<!-- Header -->
+<header>
+<a href="#" class="logo"><img src="homepage/logo1.jpg" alt="Logo"></a>
+<div class="para">
+<p>CLICK YOUR MOMENTS</p>
+</div>
+<ul class="navbar">
+<li><a href="index.html">Home</a></li>
+<li><a href="#about">About</a></li>
+<li><a href="#services">Services</a></li>
+<li><a href="#contact">Contact</a></li>
+</ul>
+
+</header>
+
+<!-- Authentication Container -->
+<div class="auth-container">
+<div class="form-container">
+<!-- Tab Headers -->
+<div class="tab-header">
+<button id="login-tab" class="active">Login</button>
+<button id="signup-tab">Sign Up</button>
+</div>
+
+<!-- Login Form -->
+<form id="login-form" class="active">
+<div class="form-group">
+<label for="login-email">Email or Phone</label>
+<input type="text" id="login-email" name="email" placeholder="Enter your email or phone" required>
+<div class="feedback" id="login-feedback"></div>
+</div>
+<div class="form-group">
+<label for="login-password">Password</label>
+<input type="password" id="login-password" name="password" placeholder="Enter your password"
+required>
+<img src="img.icons8.com/ios-glyphs/30/null/lock-2.png" alt="Toggle Password" class="icon"
+id="toggle-login-password">
+</div>
+<div class="forgot-password">
+<a href="#" id="forgot-password-link">Forgot Password?</a>
+</div>
+<div class="buttons">
+<button type="submit" class="btn-primary">Login</button>
+<button type="reset" class="btn-secondary">Cancel</button>
+</div>
+</form>
+
+<!-- Sign Up Form -->
+<form id="signup-form">
+<div class="form-group">
+<label for="signup-name">Full Name</label>
+<input type="text" id="signup-name" name="name" placeholder="Enter your full name" required>
+</div>
+<div class="form-group">
+<label for="signup-email">Email</label>
+<input type="email" id="signup-email" name="email" placeholder="Enter your email" required>
+</div>
+<div class="form-group">
+<label for="signup-phone">Phone</label>
+<input type="tel" id="signup-phone" name="phone" placeholder="Enter your phone number"
+maxlength="10" pattern="[0-9]{10}" required>
+</div>
+<div class="form-group">
+<label for="signup-password">Password</label>
+<input type="password" id="signup-password" name="password" placeholder="Create a password"
+required>
+<img src="img.icons8.com/ios-glyphs/30/null/lock-2.png" alt="Toggle Password" class="icon"
+id="toggle-signup-password">
+</div>
+<div class="buttons">
+<button type="submit" class="btn-primary">Sign Up</button>
+<button type="reset" class="btn-secondary">Cancel</button>
+</div>
+
+</form>
+</div>
+</div>
+
+<!-- Footer -->
+<section class="foot">
+<footer>
+<div class="footer-bottom">
+<p>© 2024 photo – Capturing Moments, Creating Memories</p>
+<ul class="policies">
+<li>Terms and Conditions</li>
+<li>Privacy Policy</li>
+<li>Refund and Return Policy</li>
+<li>Shipping Policy</li>
+</ul>
+<div class="social-media">
+<a href=""><img src="footer\fb.jpg" alt=""></a>
+<a href=""><img src="footer\linkedin.jpg" alt=""></a>
+<a href=""><img src="footer\twitter.jpg" alt=""></a>
+</div>
+</div>
+</footer>
+</section>
+</body>
+<script type="module">
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "gstatic.com/firebasejs/11.1.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+import { getFirestore, collection, addDoc } from "gstatic.com/firebasejs/11.1.0/firebase-firestore.js"
+// TODO: Add SDKs for Firebase products that you want to use
+// firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+apiKey: "AIzaSyDfYWG1ZLZArvYAFke4yKYwmMsQp6ebSNQ",
+authDomain: "photograph-255e1.firebaseapp.com",
+projectId: "photograph-255e1",
+storageBucket: "photograph-255e1.firebasestorage.app",
+messagingSenderId: "362959735243",
+appId: "1:362959735243:web:411501020145af6b4dce4e"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const loginform = document.getElementById("login-form");
+loginform.addEventListener("submit", async (e) => {
+e.preventDefault();
+
+const email = document.getElementById("login-email").value.trim();
+const password = document.getElementById("login-password").value.trim();
+
+try {
+const usercredential = await signInWithEmailAndPassword(auth, email, password);
+alert("login successful");
+}
+catch (error) {
+alert("error signin:", + error.message);
+}
+});
+
+const signupform = document.getElementById("signup-form");
+signupform.addEventListener("submit", async (e) => {
+e.preventDefault();
+
+const name = document.getElementById("signup-name").value.trim();
+const email = document.getElementById("signup-email").value.trim();
+const phone = document.getElementById("signup-phone").value.trim();
+const password = document.getElementById("signup-password").value.trim();
+
+try {
+const usercredential = await createUserWithEmailAndPassword(auth, email, password);
+const user = usercredential.user;
+
+await addDoc(collection(db, "userdetails"), {
+uid: user.uid,
+name,
+email,
+phone,
+password,
+createAt: new Date(),
+});
+alert("Registeration successfull");
+}
+catch (error) {
+alert("error signup:", error.message);
+}
+});
+// Tab Switching
+const loginTab = document.getElementById('login-tab');
+const signupTab = document.getElementById('signup-tab');
+const loginForm = document.getElementById('login-form');
+const signupForm = document.getElementById('signup-form');
+
+loginTab.addEventListener('click', () => {
+loginTab.classList.add('active');
+signupTab.classList.remove('active');
+loginForm.classList.add('active');
+signupForm.classList.remove('active');
+});
+
+signupTab.addEventListener('click', () => {
+signupTab.classList.add('active');
+loginTab.classList.remove('active');
+signupForm.classList.add('active');
+loginForm.classList.remove('active');
+});
+
+// Switch to Login from Sign Up
+const switchToLogin = document.getElementById('switch-to-login');
+switchToLogin.addEventListener('click', (e) => {
+e.preventDefault();
+loginTab.click();
+});
+
+// Toggle Password Visibility
+const toggleLoginPassword = document.getElementById('toggle-login-password');
+const loginPasswordInput = document.getElementById('login-password');
+
+toggleLoginPassword.addEventListener('click', () => {
+const type = loginPasswordInput.type === 'password' ? 'text' : 'password';
+loginPasswordInput.type = type;
+toggleLoginPassword.src = type === 'password'
+? 'img.icons8.com/ios-glyphs/30/null/lock-2.png'
+: 'img.icons8.com/ios-glyphs/30/null/eye.png';
+});
+
+const toggleSignupPassword = document.getElementById('toggle-signup-password');
+const signupPasswordInput = document.getElementById('signup-password');
+
+toggleSignupPassword.addEventListener('click', () => {
+const type = signupPasswordInput.type === 'password' ? 'text' : 'password';
+signupPasswordInput.type = type;
+toggleSignupPassword.src = type === 'password'
+? 'img.icons8.com/ios-glyphs/30/null/lock-2.png'
+: 'img.icons8.com/ios-glyphs/30/null/eye.png';
+});
+
+
+
+
+</script>
+
+</html>
+
