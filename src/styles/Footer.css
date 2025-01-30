@@ -1,5 +1,5 @@
 footer {
-    background: #343a40;;
+    background: #343a40;
     color: white;
     padding: 20px;
     text-align: center;
@@ -26,16 +26,18 @@ footer .footer-links a:hover {
     color: #007bff;
 }
 
+/* Center social icons */
+footer .social-icons {
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Align vertically */
+    gap: 10px; /* Space between icons */
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
 footer .social-icons a {
-    margin-right: 5px;
-}
-
-footer div {
-    margin-bottom: 10px;
-}
-
-footer {
-    font-size: 12px;
+    display: inline-block;
 }
 
 footer img {

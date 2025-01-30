@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import "../styles/AddDoctor.css";
-import ProfileImg from "../images/icons/Profile.jpg";
-import { db } from "../firebaseconfig"; // Firebase configuration
+import "./AddDoctor.css";
+import ProfileImg from "../../images/icons/Profile.jpg";
+import { db } from "../../firebaseconfig"; // Firebase configuration
 import { collection, addDoc } from "firebase/firestore"; // Firestore functions
 import { Cloudinary } from "cloudinary-core"; // Cloudinary client-side SDK
 
@@ -246,3 +246,45 @@ const AddDoctor = () => {
 };
 
 export default AddDoctor;
+
+
+// // AddDoctor.jsx
+// const AddDoctor = () => {
+//   return (
+//     <div className="p-5">
+//       <h2 className="text-2xl font-bold mb-5">Add Doctor</h2>
+//       <div className="bg-white p-5 rounded shadow">
+//         <form className="space-y-4">
+//           <input
+//             type="text"
+//             placeholder="Name"
+//             className="w-full p-2 border rounded"
+//           />
+//           <input
+//             type="text"
+//             placeholder="Specialization"
+//             className="w-full p-2 border rounded"
+//           />
+//           <input
+//             type="text"
+//             placeholder="Hospital"
+//             className="w-full p-2 border rounded"
+//           />
+//           <input
+//             type="text"
+//             placeholder="Contact"
+//             className="w-full p-2 border rounded"
+//           />
+//           <button
+//             type="submit"
+//             className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+//           >
+//             Add Doctor
+//           </button>
+//         </form>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default AddDoctor;

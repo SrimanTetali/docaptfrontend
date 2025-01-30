@@ -1,10 +1,10 @@
 // src/components/Footer.js
 import React from 'react';
-import FaceBook from '../images/Followus/Facebook.jpeg';
-import Twitter from '../images/Followus/Twitter.png';
-import Instagram from '../images/Followus/instagram.jpeg';
-import LinkedIn from '../images/Followus/linkedin.png';
-import '../styles/HomeFooter.css';
+import FaceBook from '../../images/Followus/facebook.png';
+import Twitter from '../../images/Followus/Twitter.png';
+import Instagram from '../../images/Followus/instagram.jpeg';
+import LinkedIn from '../../images/Followus/linkedin.png';
+import './HomeFooter.css';
 
 const Footer = () => {
   return (

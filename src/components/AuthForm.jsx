@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import { auth, db } from "../firebaseconfig";
+import Footer from "./Footer";
 
 import "../styles/AuthForm.css";
 import eyeIcon from "../images/icons/eye.png";
@@ -99,6 +100,7 @@ function AuthForm() {
   };
 
   return (
+    <>
     <div className="auth-container">
       <div className="form-container">
         <div className="tab-header">
@@ -143,6 +145,7 @@ function AuthForm() {
         </form>
       </div>
     </div>
+    <Footer/></>
   );
 }
 

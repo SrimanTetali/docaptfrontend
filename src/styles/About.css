@@ -1,0 +1,107 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  header {
+    background-color: #865858;
+    color: white;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .about-us-container {
+    background-color: #f8f9fa;
+    padding: 50px;
+  }
+  
+  .quantitative-overview {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 30px;
+    margin-bottom: 30px;
+  }
+  
+  .quantitative-overview h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  .quantitative-overview p {
+    font-size: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .quantitative-overview .stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+  }
+  
+  .quantitative-overview .stats .stat {
+    text-align: center;
+  }
+  
+  .quantitative-overview .stats .stat h3 {
+    font-size: 24px;
+    margin-bottom: 5px;
+  }
+  
+  .quantitative-overview .stats .stat p {
+    font-size: 16px;
+    margin: 0;
+  }
+  
+  .vision-mission-values {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .vision-mission-values .section {
+    background-color: #a0cfec;
+    border-radius: 10px;
+    padding: 30px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .vision-mission-values .section h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .vision-mission-values .section p {
+    font-size: 15px;
+  }
+  
+  .values {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .values .value {
+    width: 30%;
+    padding: 15px;
+    text-align: center;
+  }
+  
+  @media (max-width: 768px) {
+    .vision-mission-values {
+      flex-direction: column;
+    }
+  
+    .vision-mission-values .section {
+      width: 80%;
+      margin-bottom: 20px;
+    }
+  
+    .values {
+      flex-direction: column;
+    }
+  
+    .values .value {
+      width: 100%;
+    }
+  }
