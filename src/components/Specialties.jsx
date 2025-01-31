@@ -1,5 +1,4 @@
 import React from 'react';
-import '../styles/SpecialtiesSection.css';
 import Cardiology from '../images/Home/specialities/cardiology.jpg';
 import Dermatology from '../images/Home/specialities/Dermatology.jpeg';
 import Pediatrics from '../images/Home/specialities/pediatrics.jpg';
@@ -20,13 +19,20 @@ const specialtiesData = [
 
 const Specialties = () => {
   return (
-    <div id="specialties" className="section">
-      <h2>Our Specialties</h2>
-      <div className="container">
+    <div id="specialties" className="py-12 bg-white text-center">
+      <h2 className="text-3xl font-semibold text-gray-800 mb-8">Our Specialties</h2>
+      <div className="flex flex-wrap justify-center gap-6">
         {specialtiesData.map((specialty, index) => (
-          <div className="card" key={index}>
-            <img src={specialty.img} alt={specialty.title} />
-            <h3>{specialty.title}</h3>
+          <div 
+            key={index} 
+            className="bg-gray-100 border border-gray-300 rounded-lg w-80 p-6 shadow-md hover:shadow-lg transform hover:-translate-y-1 transition"
+          >
+            <img 
+              src={specialty.img} 
+              alt={specialty.title} 
+              className="w-full h-48 object-cover rounded-md mb-4"
+            />
+            <h3 className="text-xl font-medium text-gray-800">{specialty.title}</h3>
           </div>
         ))}
       </div>

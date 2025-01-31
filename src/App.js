@@ -6,7 +6,7 @@ import Navbar from "./components/navbar/Navbar";
 import Home from "./components/Home";
 import Doctors from "./components/Doctors";
 import About from "./components/About";
-import Contact from "./components/contact/Contact";
+import Contact from "./components/Contact";
 import AuthForm from "./components/AuthForm";
 // import Footer from "./components/Footer";
 

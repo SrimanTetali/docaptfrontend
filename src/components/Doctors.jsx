@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { db } from "../firebaseconfig"; // Import Firebase configuration
-import { collection, getDocs } from "firebase/firestore"; // Firestore functions
-import "../styles/Doctors.css";
+import { db } from "../firebaseconfig";
+import { collection, getDocs } from "firebase/firestore";
 
 const Doctors = () => {
   const [doctors, setDoctors] = useState([]);
   const [selectedSpecialty, setSelectedSpecialty] = useState("All");
 
-  // Fetch doctors data from Firestore
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const doctorsCollectionRef = collection(db, "doctors"); // Reference to 'doctors' collection
-        const querySnapshot = await getDocs(doctorsCollectionRef); // Fetch all documents
-        const doctorsList = querySnapshot.docs.map((doc) => doc.data()); // Map to doctor objects
-        setDoctors(doctorsList); // Set fetched data to state
+        const doctorsCollectionRef = collection(db, "doctors");
+        const querySnapshot = await getDocs(doctorsCollectionRef);
+        const doctorsList = querySnapshot.docs.map((doc) => doc.data());
+        setDoctors(doctorsList);
       } catch (error) {
         console.error("Error fetching doctors data:", error);
       }
@@ -23,32 +21,31 @@ const Doctors = () => {
     fetchDoctors();
   }, []);
 
-  // Filter doctors based on selected specialty
   const filteredDoctors =
     selectedSpecialty === "All"
       ? doctors
       : doctors.filter((doctor) => doctor.speciality === selectedSpecialty);
 
   return (
-    <div className="doctors-page">
-      <div className="sidebar">
-        <h2 className="sidebar-title">Specialties</h2>
-        <ul className="specialty-list">
+    <div className="flex flex-col md:flex-row p-8 bg-gray-100 min-h-screen">
+      {/* Sidebar */}
+      <div className="md:w-1/5 bg-gray-200 p-6 rounded-lg mb-6 md:mb-0 md:mr-6">
+        <h2 className="text-xl font-bold text-center mb-4">Specialists</h2>
+        <ul className="space-y-2">
           <li
-            className={`specialty-item ${
-              selectedSpecialty === "All" ? "active" : ""
+            className={`p-3 rounded-lg cursor-pointer transition ${
+              selectedSpecialty === "All" ? "bg-blue-500 text-white" : "hover:bg-blue-100"
             }`}
             onClick={() => setSelectedSpecialty("All")}
           >
             All Specialists
           </li>
-          {/* Dynamically generate specialties from doctors data */}
           {[...new Set(doctors.map((doctor) => doctor.speciality))].map(
             (specialty, index) => (
               <li
                 key={index}
-                className={`specialty-item ${
-                  selectedSpecialty === specialty ? "active" : ""
+                className={`p-3 rounded-lg cursor-pointer transition ${
+                  selectedSpecialty === specialty ? "bg-blue-500 text-white" : "hover:bg-blue-100"
                 }`}
                 onClick={() => setSelectedSpecialty(specialty)}
               >
@@ -59,29 +56,26 @@ const Doctors = () => {
         </ul>
       </div>
 
-      <div className="doctors-content">
-        <h1 className="page-title">Our Specialists</h1>
-        <div className="doctors-grid">
+      {/* Doctors List */}
+      <div className="flex-1">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Our Specialists</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {filteredDoctors.length > 0 ? (
             filteredDoctors.map((doctor) => (
-              <div className="doctor-card" key={doctor._id}>
+              <div key={doctor._id} className="bg-white p-4 rounded-lg shadow-lg hover:shadow-xl transition">
                 <img
                   src={doctor.image}
                   alt={`${doctor.name}'s photo`}
-                  className="doctor-image"
+                  className="w-full h-48 object-cover rounded-lg mb-4"
                 />
-                <h2 className="doctor-name">{doctor.name}</h2>
-                <p className="doctor-specialty">{doctor.speciality}</p>
-                <p className="doctor-experience">
-                  {doctor.experience} of Experience
-                </p>
-                <p className="doctor-fees">
-                  Consultation Fee: ${doctor.fees}
-                </p>
+                <h2 className="text-lg font-bold text-gray-900">{doctor.name}</h2>
+                <p className="text-blue-600 font-semibold">{doctor.speciality}</p>
+                <p className="text-gray-600">{doctor.experience} years of experience</p>
+                <p className="text-green-600 font-bold">Consultation Fee: ${doctor.fees}</p>
               </div>
             ))
           ) : (
-            <p>No doctors available in this specialty.</p>
+            <p className="text-center text-gray-600 col-span-full">No doctors available in this specialty.</p>
           )}
         </div>
       </div>

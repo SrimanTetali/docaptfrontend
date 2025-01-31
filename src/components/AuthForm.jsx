@@ -4,7 +4,6 @@ import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import { auth, db } from "../firebaseconfig";
 import Footer from "./Footer";
 
-import "../styles/AuthForm.css";
 import eyeIcon from "../images/icons/eye.png";
 import eyeSlashIcon from "../images/icons/eye-slash.png";
 
@@ -101,51 +100,114 @@ function AuthForm() {
 
   return (
     <>
-    <div className="auth-container">
-      <div className="form-container">
-        <div className="tab-header">
-          <button className={isLogin ? "active" : ""} onClick={() => setIsLogin(true)}>Login</button>
-          <button className={!isLogin ? "active" : ""} onClick={() => setIsLogin(false)}>Sign Up</button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="active">
-
-          {!isLogin && <div className="form-group">
-            <label htmlFor="name">Full Name</label>
-            <input type="text" id="name" name="name" placeholder="Enter your full name" value={formData.name} onChange={handleInputChange} required />
-            {errors.name && <p className="error-message">{errors.name}</p>}
-          </div>
-          }
-
-          {!isLogin && <div className="form-group">
-            <label htmlFor="phone">Phone</label><input type="tel" id="phone" name="phone" placeholder="Enter your phone number" maxLength="10" value={formData.phone} onChange={handleInputChange} required />
-            {errors.phone && <p className="error-message">{errors.phone}</p>}
-          </div>
-          }
-
-          <div className="form-group">
-            <label htmlFor="email">Email</label><input type="email" id="email" name="email" placeholder="Enter your email" value={formData.email} onChange={handleInputChange} required />
-            {errors.email && <p className="error-message">{errors.email}</p>}
+      <div className="flex justify-center items-center h-[85vh] bg-cover bg-center bg-no-repeat p-5 sticky" style={{ backgroundImage: "url('https://t4.ftcdn.net/jpg/08/15/58/65/360_F_815586595_PJGF1V6kQBaUcNHgsx1dbnG7dAwIE2xY.jpg')" }}>
+        <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg"> {/* Slightly larger container */}
+          <div className="flex justify-around mb-6"> {/* Slightly larger margin */}
+            <button
+              className={`text-lg font-bold ${isLogin ? "text-blue-500 border-b-2 border-blue-500" : "text-gray-600"}`} // Slightly larger font size
+              onClick={() => setIsLogin(true)}
+            >
+              Login
+            </button>
+            <button
+              className={`text-lg font-bold ${!isLogin ? "text-blue-500 border-b-2 border-blue-500" : "text-gray-600"}`} // Slightly larger font size
+              onClick={() => setIsLogin(false)}
+            >
+              Sign Up
+            </button>
           </div>
 
-          <div className="form-group password-group">
-            <label htmlFor="password">Password</label>
-            <div className="password-input-container">
-              <input type={showPassword ? "text" : "password"} id="password" name="password" placeholder="Enter your password" value={formData.password} onChange={handleInputChange} required />
-              <img src={showPassword ? eyeSlashIcon : eyeIcon} alt="Toggle Password Visibility" className="toggle-password" onClick={() => setShowPassword(!showPassword)} />
+          <form onSubmit={handleSubmit} className="block">
+            {!isLogin && (
+              <div className="mb-5"> {/* Slightly larger margin */}
+                <label htmlFor="name" className="block text-base font-bold mb-2 text-gray-700">Full Name</label> {/* Slightly larger font size */}
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  placeholder="Enter your full name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  className="w-full p-2.5 border border-gray-300 rounded-md text-base" // Slightly larger padding and font size
+                  required
+                />
+                {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+              </div>
+            )}
+
+            {!isLogin && (
+              <div className="mb-5"> {/* Slightly larger margin */}
+                <label htmlFor="phone" className="block text-base font-bold mb-2 text-gray-700">Phone</label> {/* Slightly larger font size */}
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder="Enter your phone number"
+                  maxLength="10"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  className="w-full p-2.5 border border-gray-300 rounded-md text-base" // Slightly larger padding and font size
+                  required
+                />
+                {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+              </div>
+            )}
+
+            <div className="mb-5"> {/* Slightly larger margin */}
+              <label htmlFor="email" className="block text-base font-bold mb-2 text-gray-700">Email</label> {/* Slightly larger font size */}
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="Enter your email"
+                value={formData.email}
+                onChange={handleInputChange}
+                className="w-full p-2.5 border border-gray-300 rounded-md text-base" // Slightly larger padding and font size
+                required
+              />
+              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
             </div>
-            {errors.password && <p className="error-message">{errors.password}</p>}
-          </div>
 
-          <div className="buttons">
-            <button type="submit" className="btn-primary">{isLogin ? "Login" : "Sign Up"}</button>
-            <button type="reset" className="btn-secondary" onClick={() => setFormData({ email: "", password: "", name: "", phone: "" })}>Cancel</button>
-          </div>
+            <div className="mb-5 relative"> {/* Slightly larger margin */}
+              <label htmlFor="password" className="block text-base font-bold mb-2 text-gray-700">Password</label> {/* Slightly larger font size */}
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  className="w-full p-2.5 border border-gray-300 rounded-md text-base pr-10" // Slightly larger padding and font size
+                  required
+                />
+                <img
+                  src={showPassword ? eyeSlashIcon : eyeIcon}
+                  alt="Toggle Password Visibility"
+                  className="absolute top-1/2 right-3 transform -translate-y-1/2 w-5 h-5 cursor-pointer"
+                  onClick={() => setShowPassword(!showPassword)}
+                />
+              </div>
+              {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+            </div>
 
-        </form>
+            <div className="flex justify-between gap-3">
+              <button type="submit" className="w-full bg-blue-500 text-white p-2.5 rounded-md hover:bg-blue-600 transition duration-300 text-base"> {/* Slightly larger padding and font size */}
+                {isLogin ? "Login" : "Sign Up"}
+              </button>
+              <button
+                type="reset"
+                className="w-full bg-red-500 text-white p-2.5 rounded-md hover:bg-red-600 transition duration-300 text-base" // Slightly larger padding and font size
+                onClick={() => setFormData({ email: "", password: "", name: "", phone: "" })}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
-    <Footer/></>
+      <Footer />
+    </>
   );
 }
 

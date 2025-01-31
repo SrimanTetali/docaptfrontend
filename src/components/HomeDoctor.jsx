@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { db } from "../../firebaseconfig"; // Import Firebase configuration
+import { db } from "../firebaseconfig"; // Import Firebase configuration
 import { collection, getDocs } from "firebase/firestore"; // Firestore functions
-import "./HomeDoctor.css"; // Import the CSS file
-
 
 const HomeDoctor = () => {
   const [doctors, setDoctors] = useState([]);
@@ -33,23 +31,26 @@ const HomeDoctor = () => {
   }, []);
 
   return (
-    <div className="home-doctor">
-      <h2 className="home-doctor-title">Our Top Doctors</h2>
-      <p className="home-doctor-description">
+    <div className="py-12 bg-white text-center">
+      <h2 className="text-3xl font-semibold text-gray-800 mb-4">Our Top Doctors</h2>
+      <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8 leading-relaxed">
         Meet our top doctors, carefully selected from various specialties to
         provide the best healthcare services. Each doctor is experienced and
         dedicated to your well-being.
       </p>
-      <div className="doctor-grid">
+      <div className="flex flex-wrap justify-center gap-6">
         {doctors.map((doctor, index) => (
-          <div className="doctor-card" key={doctor._id || index}>
+          <div
+            className="bg-gray-100 border border-gray-300 rounded-lg w-80 p-6 shadow-md hover:shadow-lg transform hover:-translate-y-1 transition"
+            key={doctor._id || index}
+          >
             <img
               src={doctor.image}
               alt={`${doctor.name}'s photo`}
-              className="doctor-image"
+              className="w-full h-48 object-cover rounded-md mb-4"
             />
-            <h3 className="doctor-name">{doctor.name}</h3>
-            <p className="doctor-specialty">{doctor.speciality}</p>
+            <h3 className="text-xl font-medium text-gray-800">{doctor.name}</h3>
+            <p className="text-blue-600 font-semibold mt-2">{doctor.speciality}</p>
           </div>
         ))}
       </div>

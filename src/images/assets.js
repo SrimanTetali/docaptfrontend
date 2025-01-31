@@ -31,16 +31,6 @@ export const assets = {
   Phone: './Home/contact/phone.jpeg',
   Whatsapp: './Home/contact/whatsapp.jpeg',
 
-  BoneJointProb: './Home/services/bon.jpeg',
-  BPProb: './Home/services/BP_Heart.jpg',
-  ChildProb: './Home/services/childnotfeelingwell.jpg',
-  ColdProb: './Home/services/cold.jpg',
-  DentalProb: './Home/services/dentalproblem.jpeg',
-  EyeProb: './Home/services/eyeproblem.jpg',
-  GasProb: './Home/services/Gastrointestinal-Diseases.jpg',
-  HeadacheProb: './Home/services/Headache.jpeg',
-  SkinProb: './Home/services/skinprob.jpg',
-
   Cardilogy: './Home/specialities/cardiology.jpg',
   Dermatology: './Home/specialities/Dermatology.jpeg',
   Gastroenterology: './Home/specialities/Gastroenterology.jpeg',
