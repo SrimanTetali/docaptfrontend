@@ -1,4 +1,3 @@
-import Icon from '../../images/icons/person.png';
 import DoctorIcon from '../../images/Admin/DoctorIcon.png';
 import AppointmentIcon from '../../images/Admin/Appointment.png';
 import PatientIcon from '../../images/Admin/PatientIcon.png';
