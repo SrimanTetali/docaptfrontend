@@ -14,7 +14,7 @@ const Dashboard = () => {
             <p className="text-gray-600">Doctors</p>
           </div>
         </div>
-        <div className="bg-white flex items-center p-5 rounded-lg shadow-md">
+        <div classN ame="bg-white flex items-center p-5 rounded-lg shadow-md">
           <img src={AppointmentIcon} alt="Appointments" className="w-12 h-12 mr-4" />
           <div>
             <p className="text-3xl font-bold">6</p>
