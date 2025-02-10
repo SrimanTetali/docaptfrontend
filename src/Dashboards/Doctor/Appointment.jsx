@@ -3,10 +3,10 @@ import Doctor from '../../images/doctors/Doc1Rechard.jpg';
 
 const Appointment = () => {
   const [appointments, setAppointments] = useState([
-    { id: 0, patient: 'Avinash Kr', payment: 'CASH', age: 31, dateTime: '5 Oct 2024, 12:00 PM', fees: '$50', status: '' },
-    { id: 1, patient: 'GreetStack', payment: 'CASH', age: 24, dateTime: '26 Sep 2024, 11:00 AM', fees: '$40', status: '' },
-    { id: 2, patient: 'GreetStack', payment: 'CASH', age: 24, dateTime: '25 Sep 2024, 02:00 PM', fees: '$40', status: '' },
-    { id: 3, patient: 'GreetStack', payment: 'CASH', age: 24, dateTime: '23 Sep 2024, 11:00 AM', fees: '$40', status: '' },
+    { id: 0, patient: 'Avinash Kr', payment: 'CASH', age: 31, dateTime: '25 Jan 2025, 12:00 PM', fees: '200', status: '' },
+    { id: 1, patient: 'GreetStack', payment: 'CASH', age: 24, dateTime: '5 Feb 2025, 11:00 AM', fees: '200', status: '' },
+    { id: 2, patient: 'GreetStack', payment: 'CASH', age: 24, dateTime: '9 Sep 2025, 02:00 PM', fees: '200', status: '' },
+    { id: 3, patient: 'GreetStack', payment: 'CASH', age: 24, dateTime: '11 Sep 2025, 11:00 AM', fees: '200', status: '' },
   ]);
 
   const handleStatusChange = (id, status) => {

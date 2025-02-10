@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^14.4.3",
     "ajv": "^8.17.1",
     "ajv-keywords": "^5.1.0",
+    "axios": "^1.7.9",
     "cloudinary": "^2.5.1",
     "cloudinary-core": "^2.13.1",
     "firebase": "^11.2.0",

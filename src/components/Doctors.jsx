@@ -71,7 +71,7 @@ const Doctors = () => {
                 <h2 className="text-lg font-bold text-gray-900">{doctor.name}</h2>
                 <p className="text-blue-600 font-semibold">{doctor.speciality}</p>
                 <p className="text-gray-600">{doctor.experience} of experience</p>
-                <p className="text-green-600 font-bold">Consultation Fee: ${doctor.fees}</p>
+                <p className="text-green-600 font-bold">Consultation Fee: {doctor.fees}</p>
               </div>
             ))
           ) : (

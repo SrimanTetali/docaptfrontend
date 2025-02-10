@@ -9,7 +9,7 @@ const MyAppointments = () => {
       doctorName: "Dr. Richard James",
       specialty: "General Physician",
       address: "24 Main Street, 10 Clause Road",
-      dateTime: "8 April 2025 | 12:00 PM",
+      dateTime: "8 Feb 2025 | 12:00 PM",
       image: doctorImage,
     },
   ];

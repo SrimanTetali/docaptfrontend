@@ -24,7 +24,7 @@ const Dashboard = () => {
         <div className="bg-white flex items-center p-5 rounded-lg shadow-md">
           <img src={Earnings} alt="Earnings" className="w-12 h-12 mr-4" />
           <div>
-            <p className="text-3xl font-bold">$80</p>
+            <p className="text-3xl font-bold">800</p>
             <p className="text-gray-600">Earnings</p>
           </div>
         </div>
