@@ -1,118 +1,55 @@
-
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./components/navbar/Navbar";
-import Home from "./components/Home";
-import Doctors from "./components/Doctors";
-import About from "./components/About";
-import Contact from "./components/Contact";
-import AuthForm from "./components/AuthForm";
-// import Footer from "./components/Footer";
-
-function App() {
-  return (
-    <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/doctors" element={<Doctors />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/auth" element={<AuthForm />} />
-      </Routes>
-    </Router>
-  );
-}
-
-
-export default App;
-
-
-
-
-
-
-
-
-
-
-
-// // App.jsx
-// import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-// import Admin from './Dashboards/Admin/Admin';
-// import AdminDashboard from './Dashboards/Admin/AdminDashboard';
-// import Appointments from './Dashboards/Admin/Appointments';
-// import AddDoctor from './Dashboards/Admin/AddDoctor';
-// import DoctorList from './Dashboards/Admin/DoctorList';
-
-// const App = () => {
-//   return (
-//     <Router>
-//       <Routes>
-//         <Route path="/" element={<Admin />}>
-//           <Route path="admindashboard" element={<AdminDashboard />} />
-//           <Route path="appointments" element={<Appointments />} />
-//           <Route path="add-doctor" element={<AddDoctor />} />
-//           <Route path="doctor-list" element={<DoctorList />} />
-//         </Route>
-//       </Routes>
-//     </Router>
-//   );
-// };
-
-// export default App;
-
-
-
-
-
-// import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-// import Doctors from './Dashboards/Doctor/Doctor';
-// import Dashboard from './Dashboards/Doctor/Dashboard';
-// import Appointment from './Dashboards/Doctor/Appointment';
-// import Profile from './Dashboards/Doctor/Profile';
-
-// function App() {
-//   return (
-//     <Router>
-//       <Routes>
-//         {/* Redirect "/" to "/dashboard" */}
-//         <Route path="/" element={<Navigate to="/dashboard" replace />} />
-
-//         {/* Doctors layout as parent */}
-//         <Route path="/" element={<Doctors />}>
-//           <Route path="dashboard" element={<Dashboard />} />
-          
-//           <Route path="appointments" element={<Appointment />} />
-//           <Route path="profile" element={<Profile />} />
-//         </Route>
-//       </Routes>
-//     </Router>
-//   );
-// }
-
-// export default App;
-
-
-// import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+// import React, { useEffect, useState } from "react";
+// import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+// import axios from "axios";
+// import Navbar from "./components/Navbar";
 // import PatientNavbar from "./Dashboards/Patient/PatientNavbar";
 // import Home from "./components/Home";
 // import Doctors from "./components/Doctors";
 // import About from "./components/About";
 // import Contact from "./components/Contact";
+// import AuthForm from "./components/AuthForm";
 // import MyAppointments from "./Dashboards/Patient/MyAppointments";
 // import PatientProfile from "./Dashboards/Patient/Profile";
+
 // function App() {
+//   const [user, setUser] = useState(null);
+//   const [loading, setLoading] = useState(true); // ✅ Added loading state
+
+//   useEffect(() => {
+//     axios.get("http://localhost:5000/api/auth/current-user", {
+//       withCredentials: true, 
+//     })
+//     .then((res) => setUser(res.data.user))
+//     .catch(() => setUser(null))
+//     .finally(() => setLoading(false)); // ✅ Prevents flickering
+//   }, []);
+
+//   if (loading) {
+//     return <div className="flex justify-center items-center h-screen">Loading...</div>;
+//   }
+
 //   return (
 //     <Router>
-//       <PatientNavbar />
+//       {user ? <PatientNavbar user={user} setUser={setUser} /> : <Navbar />}
+
 //       <Routes>
+//         {/* Default Home Page for Logged-in Users */}
 //         <Route path="/" element={<Home />} />
 //         <Route path="/doctors" element={<Doctors />} />
 //         <Route path="/about" element={<About />} />
 //         <Route path="/contact" element={<Contact />} />
-//         <Route path="/my-appointment" element={<MyAppointments />} />
-//         <Route path='/profile' element={<PatientProfile/>}/>
+//         <Route path="/auth" element={<AuthForm setUser={setUser} />} />
+
+//         {/* Protected Routes */}
+//         {user && (
+//           <>
+//             <Route path="/my-appointment" element={<MyAppointments />} />
+//             <Route path="/profile" element={<PatientProfile />} />
+//           </>
+//         )}
+
+//         {/* Redirect unauthenticated users */}
+//         <Route path="*" element={<Navigate to={user ? "/" : "/auth"} />} />
 //       </Routes>
 //     </Router>
 //   );
@@ -121,94 +58,39 @@ export default App;
 // export default App;
 
 
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import PatientRegister from "./pages/Auth/PatientRegister";
+import PatientLogin from "./pages/Auth/PatientLogin";
+import PatientDashboard from "./pages/Patient/PatientDashboard";
+import DoctorRegister from "./pages/Auth/DoctorRegister";
+import DoctorLogin from "./pages/Auth/DoctorLogin";
+import AdminRegister from "./pages/Auth/AdminRegister";
+import AdminLogin from "./pages/Auth/AdminLogin";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
+import DoctorDashboard from "./pages/Doctor/DoctorDashboard";
 
+function App() {
+  return (
+    <Router>
+      <Routes>
+        {/* Patient Routes */}
+        <Route path="/patient-register" element={<PatientRegister />} />
+        <Route path="/patient-login" element={<PatientLogin />} />
+        <Route path="/patient-dashboard" element={<PatientDashboard />} />
 
+        {/* Doctor Routes */}
+        <Route path="/doctor-register" element={<DoctorRegister />} />
+        <Route path="/doctor-login" element={<DoctorLogin />} />
+        <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
 
+        {/* Admin Routes */}
+        <Route path="/admin-register" element={<AdminRegister />} />
+        <Route path="/admin-login" element={<AdminLogin />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+      </Routes>
+    </Router>
+  );
+}
 
+export default App;
 
-// import React, { useEffect, useState } from "react";
-// import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-// import { getAuth, onAuthStateChanged } from "firebase/auth";
-// import { getFirestore, doc, getDoc } from "firebase/firestore";
-// import Navbar from "./components/navbar/Navbar";
-// import Home from "./components/Home";
-// import Doctors from "./components/Doctors";
-// import About from "./components/About";
-// import Contact from "./components/Contact";
-// import AuthForm from "./components/AuthForm";
-// import AdminDashboard from "./Dashboards/Admin/AdminDashboard";
-// import Appointments from "./Dashboards/Admin/Appointments";
-// import AddDoctor from "./Dashboards/Admin/AddDoctor";
-// import DoctorList from "./Dashboards/Admin/DoctorList";
-// import DoctorDashboard from "./Dashboards/Doctor/Dashboard";
-// import DoctorAppointments from "./Dashboards/Doctor/Appointment";
-// import Profile from "./Dashboards/Doctor/Profile";
-// import PatientDashboard from "./Dashboards/Patient/PatientDashboard";
-// import PatientAppointments from "./Dashboards/Patient/MyAppointments";
-
-// const App = () => {
-//   const [userRole, setUserRole] = useState(null);
-//   const auth = getAuth();
-//   const db = getFirestore();
-
-//   useEffect(() => {
-//     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-//       if (user) {
-//         // Fetch user details from Firestore
-//         const userDoc = await getDoc(doc(db, "userdetails", user.uid));
-//         if (userDoc.exists()) {
-//           setUserRole(userDoc.data().role); // Assuming "role" is stored as "admin", "doctor", or "patient"
-//         }
-//       } else {
-//         setUserRole(null);
-//       }
-//     });
-//     return () => unsubscribe();
-//   }, [auth, db]);
-
-//   if (userRole === null) return <p>Loading...</p>; // Show loading state until role is determined
-
-//   return (
-//     <Router>
-//       <Navbar />
-//       <Routes>
-//         {/* Public Routes */}
-//         <Route path="/" element={<Home />} />
-//         <Route path="/doctors" element={<Doctors />} />
-//         <Route path="/about" element={<About />} />
-//         <Route path="/contact" element={<Contact />} />
-//         <Route path="/auth" element={<AuthForm />} />
-
-//         {/* Role-based Protected Routes */}
-//         {userRole === "admin" && (
-//           <>
-//             <Route path="/admin/dashboard" element={<AdminDashboard />} />
-//             <Route path="/admin/appointments" element={<Appointments />} />
-//             <Route path="/admin/add-doctor" element={<AddDoctor />} />
-//             <Route path="/admin/doctor-list" element={<DoctorList />} />
-//           </>
-//         )}
-
-//         {userRole === "doctor" && (
-//           <>
-//             <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
-//             <Route path="/doctor/appointments" element={<DoctorAppointments />} />
-//             <Route path="/doctor/profile" element={<Profile />} />
-//           </>
-//         )}
-
-//         {userRole === "patient" && (
-//           <>
-//             <Route path="/patient/dashboard" element={<PatientDashboard />} />
-//             <Route path="/patient/appointments" element={<PatientAppointments />} />
-//           </>
-//         )}
-
-//         {/* Redirect unknown routes to home */}
-//         <Route path="*" element={<Navigate to="/" />} />
-//       </Routes>
-//     </Router>
-//   );
-// };
-
-// export default App;
