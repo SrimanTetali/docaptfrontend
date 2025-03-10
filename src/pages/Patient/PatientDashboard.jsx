@@ -1,48 +1,89 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate, Outlet } from "react-router-dom";
 
 const PatientDashboard = () => {
   const [patient, setPatient] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchPatientProfile = async () => {
-      try {
-        const token = sessionStorage.getItem("patientToken");
-        if (!token) {
-          navigate("/patient-login");
-          return;
-        }
-        const res = await axios.get("http://localhost:5000/api/patient/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setPatient(res.data);
-      } catch (error) {
-        console.error("Error fetching patient profile:", error);
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      const userData = JSON.parse(storedUser);
+      if (userData.role === "patient") {
+        setPatient(userData);
+      } else {
+        navigate("/patient-login"); // Redirect if role mismatch
       }
-    };
-
-    fetchPatientProfile();
+    } else {
+      navigate("/patient-login"); // Redirect if no session
+    }
   }, [navigate]);
 
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/patient-login");
+  };
+
+  if (!patient) {
+    return (
+      <div className="h-screen flex justify-center items-center text-lg font-semibold">
+        Loading...
+      </div>
+    );
+  }
+
   return (
-    <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow-md rounded">
-      <h2 className="text-2xl font-bold mb-4">Patient Dashboard</h2>
-      {patient ? (
-        <div>
-          <p><strong>Name:</strong> {patient.name}</p>
-          <p><strong>Email:</strong> {patient.email}</p>
-          <button className="bg-red-500 text-white px-4 py-2 mt-4" onClick={() => {
-            sessionStorage.removeItem("patientToken");
-            navigate("/patient-login");
-          }}>
+    <div className="h-screen flex flex-col">
+      {/* Navbar */}
+      <nav className="flex justify-between items-center p-5 bg-gray-800 text-white w-full top-0 left-0 z-50 shadow-lg">
+        <div className="text-xl font-bold">Golden Life</div>
+        <div className="flex gap-5 pr-14">
+          <Link
+            to="/patient-dashboard/phome" // New Home link
+            className="text-white font-bold hover:text-blue-400 transition duration-300"
+          >
+            Home
+          </Link>
+          <Link
+            to="/patient-dashboard/profile"
+            className="text-white font-bold hover:text-blue-400 transition duration-300"
+          >
+            Profile
+          </Link>
+          <Link
+            to="/patient-dashboard/doctors"
+            className="text-white font-bold hover:text-blue-400 transition duration-300"
+          >
+            Doctors
+          </Link>
+          <Link
+            to="/patient-dashboard/appointments"
+            className="text-white font-bold hover:text-blue-400 transition duration-300"
+          >
+            My Appointments
+          </Link>
+          <Link
+            to="/patient-dashboard/pcontact" // New Contact link
+            className="text-white font-bold hover:text-blue-400 transition duration-300"
+          >
+            Contact
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="text-white font-bold hover:text-blue-400 transition duration-300"
+          >
             Logout
           </button>
         </div>
-      ) : (
-        <p>Loading profile...</p>
-      )}
+      </nav>
+
+      {/* Main Content */}
+      <div className="flex-1 p-6 bg-gray-100">
+        {/* Nested Routes Render Here */}
+        <div className="mt-4 bg-white p-6 rounded-lg shadow-md">
+          <Outlet />
+        </div>
+      </div>
     </div>
   );
 };

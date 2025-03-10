@@ -1,58 +1,102 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "react-toastify";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import LoginBackground from "../../images/Home/loginBG.jpg";
 
 const API_URL = "http://localhost:5000/api";
 
-const DoctorLogin = () => {
-  const { register, handleSubmit } = useForm();
-  const navigate = useNavigate();
+const DoctorLogin = ({ setUser }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [userLoggedIn, setUserLoggedIn] = useState(false); // State to handle navigation
+  const navigate = useNavigate();
 
-  const onSubmit = async (data) => {
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
     try {
-      setLoading(true);
-      console.log("Sending data:", data); // Debugging
-  
-      const response = await axios.post(`${API_URL}/doctor/login`, data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      console.log("Sending data:", { email, password });
+
+      const response = await fetch(`${API_URL}/doctor/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
-  
-      console.log("Response received:", response.data); // Debugging
-  
-      // Store token and doctor info in session storage
-      sessionStorage.setItem("doctorToken", response.data.token);
-      sessionStorage.setItem("doctor", JSON.stringify(response.data.doctor));
-  
-      toast.success("Login successful!");
-      navigate("/doctor-dashboard");
+
+      const text = await response.text();
+      console.log("Raw response:", text);
+
+      if (!text) {
+        throw new Error("Empty response from server");
+      }
+
+      const data = JSON.parse(text);
+
+      if (response.ok) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify({ role: "doctor", data: data.doctor }));
+
+        setUser({ token: data.token, role: "doctor", data: data.doctor });
+
+        setUserLoggedIn(true); // Mark as logged in
+        toast.success("Login successful!");
+      } else {
+        toast.error(data.message || "Login failed!");
+      }
     } catch (error) {
-      console.error("Login Error:", error.response?.data); // Debugging
-      toast.error(error.response?.data?.message || "Login failed");
+      console.error("Login Error:", error);
+      toast.error(error.message || "An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
   };
-  
+
+  // ✅ Navigate to Doctor Dashboard after login success
+  useEffect(() => {
+    if (userLoggedIn) {
+      navigate("/doctor-dashboard");
+    }
+  }, [userLoggedIn, navigate]);
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="bg-white p-6 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-semibold text-center mb-4">Doctor Login</h2>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-          <input {...register("email")} type="email" placeholder="Email" className="w-full p-2 border rounded" required />
-          <input {...register("password")} type="password" placeholder="Password" className="w-full p-2 border rounded" required />
-          <button type="submit" disabled={loading} className="w-full bg-blue-500 text-white p-2 rounded">
+    <div
+      className="flex justify-center items-center min-h-screen bg-cover bg-center"
+      style={{ backgroundImage: `url(${LoginBackground})` }}
+    >
+      <div className="bg-white bg-opacity-90 p-8 rounded-lg shadow-lg w-full max-w-xl">
+        <h1 className="text-3xl font-bold text-gray-800 mb-4 text-center">
+          Doctor Login
+        </h1>
+        <p className="text-gray-600 mb-6 text-center">
+          Please login to access the dashboard.
+        </p>
+        <form onSubmit={handleLogin} className="space-y-4">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-2 border rounded"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-2 border rounded"
+            required
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600 transition disabled:opacity-50"
+          >
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
-        <p className="text-center mt-2">
-          Don't have an account? <a href="/doctor-register" className="text-blue-500">Register</a>
-        </p>
       </div>
     </div>
   );
