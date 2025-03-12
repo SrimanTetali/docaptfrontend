@@ -80,6 +80,7 @@ const MyAppointments = () => {
                   <p className={`font-semibold ${
                     appointment.status === "Pending" ? "text-yellow-500" :
                     appointment.status === "Accepted" ? "text-green-500" :
+                    appointment.status === "Completed" ? "text-blue-500" :
                     "text-red-500"
                   }`}>
                     <strong>Status:</strong> {appointment.status}
@@ -94,7 +95,7 @@ const MyAppointments = () => {
                   )}
                 </div>
               </div>
-              {appointment.status !== "Cancelled" && (
+              {appointment.status !== "Cancelled" && appointment.status !== "Completed" && (
                 <button
                   onClick={() => setCancelingId(appointment._id)}
                   className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"

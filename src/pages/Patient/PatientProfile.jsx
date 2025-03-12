@@ -102,24 +102,24 @@ const PatientProfile = () => {
           )}
         </div>
 
-        {/* Profile Details */}
-        <div className="space-y-6">
-          {/* Name */}
-          <div>
-            <label className="block text-gray-600 font-medium mb-1">Name:</label>
-            {isEditing ? (
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            ) : (
-              <p className="text-lg text-gray-800 bg-gray-100 p-3 rounded-lg">{patient.name}</p>
-            )}
-          </div>
+        {/* Name */}
+        <div className="mb-6">
+          <label className="block text-gray-600 font-medium mb-1">Name:</label>
+          {isEditing ? (
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          ) : (
+            <p className="text-lg text-gray-800 bg-gray-100 p-3 rounded-lg">{patient.name}</p>
+          )}
+        </div>
 
+        {/* Two-column layout for email, phone, gender, dob, age, bloodGroup */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           {/* Email (Read-Only) */}
           <div>
             <label className="block text-gray-600 font-medium mb-1">Email:</label>
@@ -139,22 +139,6 @@ const PatientProfile = () => {
               />
             ) : (
               <p className="text-lg text-gray-800 bg-gray-100 p-3 rounded-lg">{patient.phone}</p>
-            )}
-          </div>
-
-          {/* Address */}
-          <div>
-            <label className="block text-gray-600 font-medium mb-1">Address:</label>
-            {isEditing ? (
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            ) : (
-              <p className="text-lg text-gray-800 bg-gray-100 p-3 rounded-lg">{patient.address}</p>
             )}
           </div>
 
@@ -189,36 +173,98 @@ const PatientProfile = () => {
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             ) : (
-              <p className="text-lg text-gray-800 bg-gray-100 p-3 rounded-lg">{patient.dob}</p>
+              <p className="text-lg text-gray-800 bg-gray-100 p-3 rounded-lg">
+                {new Date(patient.dob).toLocaleDateString("en-GB", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                })}
+              </p>
             )}
           </div>
 
-          {/* Buttons */}
-          <div className="mt-6 flex space-x-4">
+          {/* Age */}
+          <div>
+            <label className="block text-gray-600 font-medium mb-1">Age:</label>
             {isEditing ? (
-              <>
-                <button
-                  onClick={handleSave}
-                  className="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg hover:from-blue-700 hover:to-blue-600 transition-all duration-300"
-                >
-                  Save
-                </button>
-                <button
-                  onClick={() => setIsEditing(false)}
-                  className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-all duration-300"
-                >
-                  Cancel
-                </button>
-              </>
+              <input
+                type="number"
+                name="age"
+                value={formData.age}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
             ) : (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg hover:from-blue-700 hover:to-blue-600 transition-all duration-300"
-              >
-                Edit Profile
-              </button>
+              <p className="text-lg text-gray-800 bg-gray-100 p-3 rounded-lg">{patient.age}</p>
             )}
           </div>
+
+          {/* Blood Group */}
+          <div>
+            <label className="block text-gray-600 font-medium mb-1">Blood Group:</label>
+            {isEditing ? (
+              <select
+                name="bloodGroup"
+                value={formData.bloodGroup}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+              </select>
+            ) : (
+              <p className="text-lg text-gray-800 bg-gray-100 p-3 rounded-lg">{patient.bloodGroup}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Address */}
+        <div className="mb-6">
+          <label className="block text-gray-600 font-medium mb-1">Address:</label>
+          {isEditing ? (
+            <input
+              type="text"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+          ) : (
+            <p className="text-lg text-gray-800 bg-gray-100 p-3 rounded-lg">{patient.address}</p>
+          )}
+        </div>
+
+        {/* Buttons */}
+        <div className="mt-6 flex space-x-4">
+          {isEditing ? (
+            <>
+              <button
+                onClick={handleSave}
+                className="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg hover:from-blue-700 hover:to-blue-600 transition-all duration-300"
+              >
+                Save
+              </button>
+              <button
+                onClick={() => setIsEditing(false)}
+                className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-all duration-300"
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => setIsEditing(true)}
+              className="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg hover:from-blue-700 hover:to-blue-600 transition-all duration-300"
+            >
+              Edit Profile
+            </button>
+          )}
         </div>
       </div>
     </div>

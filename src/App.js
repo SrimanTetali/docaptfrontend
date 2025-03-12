@@ -28,6 +28,7 @@ import AdminDashboard from "./pages/Admin/AdminDashboard";
 import AddDoctor from "./pages/Admin/AddDoctor";
 import DoctorsList from "./pages/Admin/DoctorsList";
 import AdminDashboardHome from "./pages/Admin/AdminDashboardHome";
+import Notifications from "./pages/Admin/Notifications";
 
 // Home Dashboard Components
 import HomeDashboard from "./pages/Home/HomeDashboard";
@@ -103,7 +104,7 @@ const App = () => {
         {/* Doctor Routes */}
         {user?.role === "doctor" && (
           <Route path="/doctor-dashboard/*" element={<DoctorDashboard user={user} />}>
-            <Route index element={<DoctorProfile user={user} />} />
+            <Route index element={<DashboardDoctor />} />
             <Route path='Dashboard' element={<DashboardDoctor />} />
             <Route path="profile" element={<DoctorProfile user={user} />} />
             <Route path="appointments" element={<DoctorAppointments />} />
@@ -117,6 +118,7 @@ const App = () => {
             <Route path="dashboard" element={<AdminDashboardHome />} />
             <Route path="add-doctor" element={<AddDoctor />} />
             <Route path="doctors-list" element={<DoctorsList />} />
+            <Route path="notifications" element={<Notifications />} />
           </Route>
         )}
 

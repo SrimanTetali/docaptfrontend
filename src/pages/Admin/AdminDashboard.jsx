@@ -54,6 +54,11 @@ const AdminDashboard = () => {
               Doctors List
             </Link>
           </li>
+          <li>
+            <Link to="/admin-dashboard/notifications" className="hover:underline">
+              Notifications
+            </Link>
+          </li>
         </ul>
         <button
           onClick={handleLogout}
