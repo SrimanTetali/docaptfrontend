@@ -6,6 +6,8 @@ import Neurology from '../../images/Home/specialities/Neurology.jpeg';
 import Orthopedics from '../../images/Home/specialities/orthopedics.jpeg';
 import Ophthalmology from '../../images/Home/specialities/Ophthalmology.jpeg';
 import Gastroenterology from '../../images/Home/specialities/Gastroenterology.jpeg';
+import Gynacology from '../../images/Home/specialities/Gynacologist.jpg';
+import GeneralPhysician  from '../../images/Home/specialities/GeneralPhysician1.jpg';  
 
 const specialtiesData = [
   { img: Cardiology, title: 'Cardiology' },
@@ -15,6 +17,8 @@ const specialtiesData = [
   { img: Orthopedics, title: 'Orthopedics' },
   { img: Ophthalmology, title: 'Ophthalmology' },
   { img: Gastroenterology, title: 'Gastroenterology' },
+  { img: Gynacology, title: 'Gynacology' },
+  { img: GeneralPhysician, title: 'General Physician' },
 ];
 
 const PSpecialities = () => {

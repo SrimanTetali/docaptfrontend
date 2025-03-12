@@ -17,6 +17,7 @@ const AllDoctors = () => {
     urgency: "Routine",
     reason: "",
   });
+  const [bookedSlots, setBookedSlots] = useState([]);
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -40,6 +41,30 @@ const AllDoctors = () => {
     };
     fetchDoctors();
   }, []);
+
+  useEffect(() => {
+    if (selectedDoctor && appointmentDetails.date) {
+      fetchBookedSlots();
+    }
+  }, [selectedDoctor, appointmentDetails.date]);
+
+  const fetchBookedSlots = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/patient/doctors/${selectedDoctor._id}/bookings`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      const bookedSlotsOnDate = response.data
+        .filter((booking) => new Date(booking.date).toISOString().split('T')[0] === appointmentDetails.date)
+        .map((booking) => booking.timeSlot);
+
+      setBookedSlots(bookedSlotsOnDate);
+    } catch (error) {
+      console.error("Error fetching booked slots", error);
+    }
+  };
 
   const filterDoctors = (specialty) => {
     setSelectedSpecialty(specialty);
@@ -196,10 +221,13 @@ const AllDoctors = () => {
                       key={slot}
                       onClick={() => setSelectedTimeSlot(slot)}
                       className={`px-4 py-2 text-sm rounded-lg transition-colors ${
-                        selectedTimeSlot === slot
+                        bookedSlots.includes(slot)
+                          ? "bg-red-600 text-white cursor-not-allowed"
+                          : selectedTimeSlot === slot
                           ? "bg-blue-600 text-white"
                           : "bg-blue-50 text-blue-600 hover:bg-blue-100"
                       }`}
+                      disabled={bookedSlots.includes(slot)}
                     >
                       {slot}
                     </button>
