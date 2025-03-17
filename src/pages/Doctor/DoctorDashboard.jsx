@@ -6,25 +6,24 @@ const DoctorDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const userData = JSON.parse(storedUser);
-      if (userData.role === "doctor") {
-        setDoctor(userData);
-      } else {
-        navigate("/doctor-login"); // Redirect if role mismatch
-      }
+    const storedDoctor = localStorage.getItem("doctor_user");
+    const token = localStorage.getItem("doctor_token");
+
+    if (storedDoctor && token) {
+      setDoctor(JSON.parse(storedDoctor));
     } else {
-      navigate("/doctor-login"); // Redirect if no session
+      navigate("/doctor-login", { replace: true });
     }
-  }, [navigate]);
+  }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    navigate("/doctor-login");
+    localStorage.removeItem("doctor_token");
+    localStorage.removeItem("doctor_user");
+    setDoctor(null);
+    navigate("/", { replace: true });
   };
 
-  if (!doctor) {
+  if (doctor === null) {
     return (
       <div className="h-screen flex justify-center items-center text-lg font-semibold">
         Loading...
@@ -39,7 +38,7 @@ const DoctorDashboard = () => {
         <h2 className="text-xl font-bold">Doctor Dashboard</h2>
         <ul className="flex space-x-6">
           <li>
-            <Link to="/doctor-dashboard/Dashboard" className="hover:underline">
+            <Link to="/doctor-dashboard/dashboard" className="hover:underline">
               Dashboard
             </Link>
           </li>

@@ -17,7 +17,7 @@ const PatientProfile = () => {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get("http://localhost:5000/api/patient/profile", {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${localStorage.getItem("patient_token")}`  },
         });
 
         setPatient(response.data);
@@ -65,7 +65,7 @@ const PatientProfile = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.put("http://localhost:5000/api/patient/profile", formData, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${localStorage.getItem("patient_token")}` },
       });
 
       setPatient(formData);

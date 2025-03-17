@@ -8,8 +8,8 @@ const AdminDashboardHome = () => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const token = localStorage.getItem("token");
-        console.log("Token:", token); // Debugging: Log the token
+        const token = localStorage.getItem("admin_token");
+        console.log("Admin Token:", token); // Debugging: Log the token
 
         const response = await fetch("http://localhost:5000/api/admin/analytics", {
           method: "GET",

@@ -6,22 +6,19 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      const userData = JSON.parse(storedUser);
-      if (userData.role === "admin") {
-        setAdmin(userData);
-      } else {
-        navigate("/admin-login"); // Redirect if role mismatch
-      }
+    const storedUser = localStorage.getItem("admin_user");
+    const token = localStorage.getItem("admin_token");
+
+    if (storedUser && token) {
+      setAdmin(JSON.parse(storedUser));
     } else {
       navigate("/admin-login"); // Redirect if no session
     }
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+    localStorage.removeItem("admin_user");
+    localStorage.removeItem("admin_token");
     navigate("/admin-login");
   };
 

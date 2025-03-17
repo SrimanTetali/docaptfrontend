@@ -19,7 +19,7 @@ const DoctorsList = () => {
 
   const fetchDoctors = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("admin_token");
       const response = await axios.get('http://localhost:5000/api/admin/doctors', {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -41,7 +41,7 @@ const DoctorsList = () => {
 
   const handleViewDetails = async (doctorId) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("admin_token");
       const response = await axios.get(`http://localhost:5000/api/admin/doctor-bookings/${doctorId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -69,7 +69,7 @@ const DoctorsList = () => {
 
   const confirmDeleteDoctor = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("admin_token");
       await axios.delete(`http://localhost:5000/api/admin/delete-doctor/${confirmDelete}`, {
         headers: {
           Authorization: `Bearer ${token}`,

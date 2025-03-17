@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import LoginBackground from "../../images/Home/loginBG.jpg";
 
@@ -6,7 +6,6 @@ const PatientLogin = ({ setUser }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [userLoggedIn, setUserLoggedIn] = useState(false); // New state
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -32,12 +31,15 @@ const PatientLogin = ({ setUser }) => {
       const data = JSON.parse(text);
 
       if (response.ok) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify({ role: "patient", data: data.patient }));
+        // Save user session
+        localStorage.setItem("patient_token", data.token);
+        localStorage.setItem("patient_user", JSON.stringify(data.patient));
 
+        // Update state before navigation
         setUser({ token: data.token, role: "patient", data: data.patient });
 
-        setUserLoggedIn(true); // Mark login success
+        // Navigate after state update
+        navigate("/patient-dashboard");
       } else {
         alert(data.message || "Login failed!");
       }
@@ -48,13 +50,6 @@ const PatientLogin = ({ setUser }) => {
       setLoading(false);
     }
   };
-
-  // ✅ Navigate after state updates
-  useEffect(() => {
-    if (userLoggedIn) {
-      navigate("/patient-dashboard");
-    }
-  }, [userLoggedIn, navigate]);
 
   return (
     <div

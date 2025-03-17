@@ -15,7 +15,7 @@ const DoctorProfile = () => {
   useEffect(() => {
     const fetchDoctorData = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("doctor_token");
         const response = await axios.get("http://localhost:5000/api/doctor/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -62,7 +62,7 @@ const DoctorProfile = () => {
 
   const handleSave = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("doctor_token");
       console.log("Token is : ", token);
 
       // Ensure timeSlots is properly formatted as an array

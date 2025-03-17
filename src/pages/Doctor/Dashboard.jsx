@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+ 
 import { toast } from "react-toastify";
 import {
   LineChart,
@@ -27,31 +28,25 @@ const Dashboard = () => {
   const [upcomingAppointments, setUpcomingAppointments] = useState([]);
   const [appointmentTrends, setAppointmentTrends] = useState([]);
   const [bookingStatusData, setBookingStatusData] = useState([]);
-  const [timeRange, setTimeRange] = useState("7"); // Default to Last 7 Days
-  const [monthlyData, setMonthlyData] = useState([]); // Monthly statistics data
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // Default to current year
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Default to current month
+  const [timeRange, setTimeRange] = useState("7");
+  const [monthlyData, setMonthlyData] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+
+ 
 
   useEffect(() => {
     fetchAppointments();
   }, []);
 
+
+ 
+
   useEffect(() => {
     if (appointments.length > 0) {
-      const trends = calculateAppointmentTrends(appointments, timeRange);
-      setAppointmentTrends(trends);
-
-      const statusData = calculateBookingStatus(appointments, timeRange);
-      setBookingStatusData(statusData);
-
-      // Update upcoming appointments (exclude Completed and Cancelled)
-      const upcoming = appointments
-        .filter((appt) => new Date(appt.date) >= new Date() && !["Completed", "Cancelled"].includes(appt.status))
-        .sort((a, b) => new Date(a.date) - new Date(b.date))
-        .slice(0, 5); // Show only 5 upcoming appointments
-      setUpcomingAppointments(upcoming);
-
-      // Update monthly statistics for the selected year and month
+      setAppointmentTrends(calculateAppointmentTrends(appointments, timeRange));
+      setBookingStatusData(calculateBookingStatus(appointments, timeRange));
+      setUpcomingAppointments(getUpcomingAppointments(appointments));
       updateMonthlyStatistics(selectedYear, selectedMonth);
     }
   }, [appointments, timeRange, selectedYear, selectedMonth]);
@@ -59,65 +54,59 @@ const Dashboard = () => {
   const fetchAppointments = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/doctor/bookings", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: { Authorization: `Bearer ${localStorage.getItem("doctor_token")}` },
       });
       const data = response.data;
       setAppointments(data);
-
-      // Calculate summary
-      const today = new Date().toDateString();
-      const totalActive = data.filter((appt) => new Date(appt.date) >= new Date()).length;
-      const todayAppointments = data.filter((appt) => new Date(appt.date).toDateString() === today).length;
-      const pendingAppointments = data.filter((appt) => appt.status === "Pending").length;
-
-      setSummary({ totalActive, todayAppointments, pendingAppointments });
+      setSummary(getSummary(data));
     } catch (error) {
       console.error("Error fetching appointments:", error);
       toast.error("Failed to load appointments");
     }
   };
 
+  const getSummary = (data) => {
+    const today = new Date().toDateString();
+    return {
+      totalActive: data.filter((appt) => new Date(appt.date) >= new Date()).length,
+      todayAppointments: data.filter((appt) => new Date(appt.date).toDateString() === today).length,
+      pendingAppointments: data.filter((appt) => appt.status === "Pending").length,
+    };
+  };
+
   const calculateAppointmentTrends = (data, range) => {
     const trends = [];
     const today = new Date();
-    const days = range === "7" ? 7 : 30; // Determine the range (7 or 30 days)
-
+    const days = range === "7" ? 7 : 30;
     for (let i = 0; i < days; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() - i);
       const count = data.filter(
         (appt) => new Date(appt.date).toDateString() === date.toDateString()
       ).length;
-      trends.unshift({ date: date.toDateString(), appointments: count }); // Add to the beginning of the array
+      trends.unshift({ date: date.toDateString(), appointments: count });
     }
     return trends;
   };
 
   const calculateBookingStatus = (data, range) => {
-    const today = new Date();
-    const startDate = new Date(today);
-    startDate.setDate(today.getDate() - (range === "7" ? 7 : 30)); // Calculate start date based on range
-
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - (range === "7" ? 7 : 30));
     const filteredData = data.filter((appt) => new Date(appt.date) >= startDate);
-
-    const statusCounts = {
-      Accepted: 0,
-      Pending: 0,
-      Completed: 0,
-      Rejected: 0,
-      Cancelled: 0,
-    };
-
+    const statusCounts = { Accepted: 0, Pending: 0, Completed: 0, Rejected: 0, Cancelled: 0 };
     filteredData.forEach((appt) => {
       if (statusCounts.hasOwnProperty(appt.status)) {
         statusCounts[appt.status]++;
       }
     });
+    return Object.keys(statusCounts).map((status) => ({ name: status, value: statusCounts[status] }));
+  };
 
-    return Object.keys(statusCounts).map((status) => ({
-      name: status,
-      value: statusCounts[status],
-    }));
+  const getUpcomingAppointments = (data) => {
+    return data
+      .filter((appt) => new Date(appt.date) >= new Date() && !["Completed", "Cancelled"].includes(appt.status))
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .slice(0, 5);
   };
 
   const updateMonthlyStatistics = (year, month) => {
@@ -125,51 +114,30 @@ const Dashboard = () => {
       const apptDate = new Date(appt.date);
       return apptDate.getFullYear() === year && apptDate.getMonth() + 1 === month;
     });
-
-    const statusCounts = {
-      Accepted: 0,
-      Pending: 0,
-      Completed: 0,
-      Rejected: 0,
-      Cancelled: 0,
-    };
-
+    const statusCounts = { Accepted: 0, Pending: 0, Completed: 0, Rejected: 0, Cancelled: 0 };
     filteredData.forEach((appt) => {
       if (statusCounts.hasOwnProperty(appt.status)) {
         statusCounts[appt.status]++;
       }
     });
-
-    const monthlyStats = Object.keys(statusCounts).map((status) => ({
-      name: status,
-      count: statusCounts[status],
-    }));
-
-    setMonthlyData(monthlyStats);
+    setMonthlyData(Object.keys(statusCounts).map((status) => ({ name: status, count: statusCounts[status] })));
   };
 
   const handleUpdateStatus = async (bookingId, status) => {
     try {
-      await axios.put(
-        "http://localhost:5000/api/doctor/booking-status",
-        { bookingId, status },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-      );
+      await axios.put("http://localhost:5000/api/doctor/booking-status", { bookingId, status }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("doctor_token")}` },
+      });
       toast.success(`Appointment ${status}`);
-      fetchAppointments(); // Refresh data
+      fetchAppointments();
     } catch (error) {
       console.error("Error updating status:", error);
       toast.error("Failed to update status");
     }
   };
 
-  // Colors for Pie Chart
   const COLORS = ["#0088FE", "#FFBB28", "#00C49F", "#FF8042", "#8884D8"];
-
-  // Generate years for the dropdown (e.g., from 2020 to current year)
   const years = Array.from({ length: new Date().getFullYear() - 2020 + 1 }, (_, i) => 2020 + i);
-
-  // Generate months for the dropdown
   const months = Array.from({ length: 12 }, (_, i) => ({
     value: i + 1,
     label: new Date(0, i).toLocaleString("default", { month: "long" }),
@@ -177,8 +145,8 @@ const Dashboard = () => {
 
   return (
     <div className="p-6">
-      {/* 🟢 Top Section - Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+ {/* 🟢 Top Section - Summary Cards */}
+ <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <div className="bg-blue-100 p-6 rounded-lg shadow-md flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold">Total Appointments</h3>
@@ -343,6 +311,7 @@ const Dashboard = () => {
           )}
         </div>
       </div>
+
     </div>
   );
 };

@@ -8,7 +8,7 @@ const MyAppointments = () => {
 
   useEffect(() => {
     const fetchAppointments = async () => {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("patient_token");
       if (!token) {
         console.error("No token found");
         return;
@@ -33,7 +33,7 @@ const MyAppointments = () => {
       toast.error("Cancellation reason is required");
       return;
     }
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("patient_token");
     try {
       const res = await fetch(`http://localhost:5000/api/patient/cancel/${appointmentId}`, {
         method: "PUT",

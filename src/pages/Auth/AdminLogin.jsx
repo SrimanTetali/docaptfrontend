@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -8,7 +8,6 @@ const AdminLogin = ({ setUser }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [userLoggedIn, setUserLoggedIn] = useState(false); // State to handle navigation
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -34,13 +33,21 @@ const AdminLogin = ({ setUser }) => {
       const data = JSON.parse(text);
 
       if (response.ok) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify({ role: "admin", data: data.admin }));
+        const userData = { token: data.token, role: "admin", data: data.admin };
 
-        setUser({ token: data.token, role: "admin", data: data.admin });
+        // Save admin session
+        localStorage.setItem("admin_token", data.token);
+        localStorage.setItem("admin_user", JSON.stringify(data.admin));
 
-        setUserLoggedIn(true); // Mark as logged in
+        // Update state before navigation
+        setUser(userData);
+
         toast.success("Login successful!");
+
+        // Ensure navigation happens after state update
+        setTimeout(() => {
+          navigate("/admin-dashboard");
+        }, 0);
       } else {
         toast.error(data.message || "Login failed!");
       }
@@ -51,13 +58,6 @@ const AdminLogin = ({ setUser }) => {
       setLoading(false);
     }
   };
-
-  // ✅ Navigate to Admin Dashboard after login success
-  useEffect(() => {
-    if (userLoggedIn) {
-      navigate("/admin-dashboard");
-    }
-  }, [userLoggedIn, navigate]);
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import LoginBackground from "../../images/Home/loginBG.jpg";
@@ -9,7 +9,6 @@ const DoctorLogin = ({ setUser }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [userLoggedIn, setUserLoggedIn] = useState(false); // State to handle navigation
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -35,13 +34,23 @@ const DoctorLogin = ({ setUser }) => {
       const data = JSON.parse(text);
 
       if (response.ok) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify({ role: "doctor", data: data.doctor }));
+        const userData = { token: data.token, role: "doctor", data: data.doctor };
 
-        setUser({ token: data.token, role: "doctor", data: data.doctor });
+ 
+        // Save doctor session
+        localStorage.setItem("doctor_token", data.token);
+        localStorage.setItem("doctor_user", JSON.stringify(data.doctor));
 
-        setUserLoggedIn(true); // Mark as logged in
+        // Update state before navigation
+        setUser(userData);
+
         toast.success("Login successful!");
+
+        // Ensure navigation happens after state update
+        setTimeout(() => {
+          navigate("/doctor-dashboard");
+        }, 0);
+        
       } else {
         toast.error(data.message || "Login failed!");
       }
@@ -52,13 +61,6 @@ const DoctorLogin = ({ setUser }) => {
       setLoading(false);
     }
   };
-
-  // ✅ Navigate to Doctor Dashboard after login success
-  useEffect(() => {
-    if (userLoggedIn) {
-      navigate("/doctor-dashboard");
-    }
-  }, [userLoggedIn, navigate]);
 
   return (
     <div

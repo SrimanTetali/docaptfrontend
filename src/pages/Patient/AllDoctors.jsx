@@ -24,7 +24,7 @@ const AllDoctors = () => {
       try {
         const response = await axios.get("http://localhost:5000/api/patient/doctors", {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${localStorage.getItem("patient_token")}`,
           },
         });
         setDoctors(response.data);
@@ -52,7 +52,7 @@ const AllDoctors = () => {
     try {
       const response = await axios.get(`http://localhost:5000/api/patient/doctors/${selectedDoctor._id}/bookings`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("patient_token")}`,
         },
       });
 
@@ -85,7 +85,7 @@ const AllDoctors = () => {
     try {
       await axios.post("http://localhost:5000/api/patient/book-session", bookingData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${localStorage.getItem("patient_token")}`,
           "Content-Type": "application/json",
         },
       });

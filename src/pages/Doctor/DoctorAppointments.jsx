@@ -24,7 +24,7 @@ const DoctorAppointments = () => {
   const fetchAppointments = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/doctor/bookings", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        headers: { Authorization:`Bearer ${localStorage.getItem("doctor_token")}`},
       });
       setAppointments(response.data);
     } catch (error) {
@@ -78,7 +78,7 @@ const DoctorAppointments = () => {
       await axios.put(
         "http://localhost:5000/api/doctor/booking-status",
         { bookingId, status },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+        { headers: { Authorization: `Bearer ${localStorage.getItem("doctor_token")}` } }
       );
       toast.success(`Appointment ${status}`);
       fetchAppointments();
@@ -95,7 +95,7 @@ const DoctorAppointments = () => {
       await axios.put(
         `http://localhost:5000/api/doctor/cancel-appointment/${cancelData.bookingId}`,
         { reason: cancelData.reason },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+        { headers: { Authorization: `Bearer ${localStorage.getItem("doctor_token")}` } }
       );
       toast.success("Appointment cancelled successfully");
       setShowCancelModal(false);
