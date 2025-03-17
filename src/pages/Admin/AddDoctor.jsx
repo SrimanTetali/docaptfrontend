@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import InputMask from "react-input-mask";
 import Modal from "react-modal";
 import { Tooltip } from "react-tooltip";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "http://localhost:5000/api/admin";
 
 // Set the app element for react-modal
 Modal.setAppElement("#root");
@@ -20,6 +20,8 @@ const AddDoctor = () => {
     specialization: "",
     education: "",
     experience: "",
+    hospitalName: "",
+    hospitalAddress: "",
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -36,6 +38,8 @@ const AddDoctor = () => {
     if (!formData.specialization.trim()) newErrors.specialization = "Specialization is required";
     if (!formData.education.trim()) newErrors.education = "Education is required";
     if (!formData.experience) newErrors.experience = "Experience is required";
+    if (!formData.hospitalName.trim()) newErrors.hospitalName = "Hospital Name is required";
+    if (!formData.hospitalAddress.trim()) newErrors.hospitalAddress = "Hospital Address is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -53,20 +57,11 @@ const AddDoctor = () => {
     if (!validateForm()) return;
     setLoading(true);
 
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      toast.error("Admin token not found. Please log in again.");
-      setLoading(false);
-      return;
-    }
-
     try {
-      const response = await fetch(`${API_URL}/admin/register-doctor`, {
+      const response = await fetch(`${API_URL}/register-doctor`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });
@@ -84,6 +79,8 @@ const AddDoctor = () => {
           specialization: "",
           education: "",
           experience: "",
+          hospitalName: "",
+          hospitalAddress: "",
         });
         setIsModalOpen(true);
       } else {
@@ -254,6 +251,42 @@ const AddDoctor = () => {
                 required
               />
               {errors.experience && <span className="text-red-500 text-sm">{errors.experience}</span>}
+            </div>
+            <div>
+              <label className="block text-gray-700 font-medium mb-2" data-tip data-for="hospitalNameTooltip">
+                Hospital Name
+              </label>
+              <Tooltip id="hospitalNameTooltip" place="top" effect="solid">
+                Enter the name of the hospital
+              </Tooltip>
+              <input
+                type="text"
+                name="hospitalName"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter hospital name"
+                value={formData.hospitalName}
+                onChange={handleChange}
+                required
+              />
+              {errors.hospitalName && <span className="text-red-500 text-sm">{errors.hospitalName}</span>}
+            </div>
+            <div>
+              <label className="block text-gray-700 font-medium mb-2" data-tip data-for="hospitalAddressTooltip">
+                Hospital Address
+              </label>
+              <Tooltip id="hospitalAddressTooltip" place="top" effect="solid">
+                Enter the address of the hospital
+              </Tooltip>
+              <input
+                type="text"
+                name="hospitalAddress"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter hospital address"
+                value={formData.hospitalAddress}
+                onChange={handleChange}
+                required
+              />
+              {errors.hospitalAddress && <span className="text-red-500 text-sm">{errors.hospitalAddress}</span>}
             </div>
           </div>
           <button

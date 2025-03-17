@@ -9,8 +9,6 @@ const AdminDashboardHome = () => {
     const fetchAnalytics = async () => {
       try {
         const token = localStorage.getItem("admin_token");
-        console.log("Admin Token:", token); // Debugging: Log the token
-
         const response = await fetch("http://localhost:5000/api/admin/analytics", {
           method: "GET",
           headers: {
@@ -19,14 +17,12 @@ const AdminDashboardHome = () => {
           },
         });
 
-        console.log("Response:", response); // Debugging: Log the response
 
         if (!response.ok) {
           throw new Error("Failed to fetch analytics data");
         }
 
         const data = await response.json();
-        console.log("Analytics Data:", data); // Debugging: Log the data
         setAnalytics(data);
       } catch (error) {
         console.error("Error fetching analytics:", error);
@@ -39,7 +35,6 @@ const AdminDashboardHome = () => {
     fetchAnalytics();
   }, []);
 
-  console.log("Loading:", loading); // Debugging: Log the loading state
 
   if (loading) {
     return (

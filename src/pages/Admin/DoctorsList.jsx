@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Modal from 'react-modal';
 
@@ -12,10 +12,24 @@ const DoctorsList = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [noBookings, setNoBookings] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchDoctors();
   }, []);
+
+  const filterDoctors = useCallback((specialization) => {
+    setSelectedSpecialization(specialization);
+    const filtered = doctors.filter(doctor =>
+      (specialization === "All Specializations" || doctor.specialization === specialization) &&
+      doctor.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredDoctors(filtered);
+  }, [doctors, searchQuery]);
+
+  useEffect(() => {
+    filterDoctors(selectedSpecialization);
+  }, [searchQuery, selectedSpecialization, filterDoctors]);
 
   const fetchDoctors = async () => {
     try {
@@ -34,11 +48,6 @@ const DoctorsList = () => {
     }
   };
 
-  const filterDoctors = (specialization) => {
-    setSelectedSpecialization(specialization);
-    setFilteredDoctors(specialization === "All Specializations" ? doctors : doctors.filter(doctor => doctor.specialization === specialization));
-  };
-
   const handleViewDetails = async (doctorId) => {
     try {
       const token = localStorage.getItem("admin_token");
@@ -47,8 +56,19 @@ const DoctorsList = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      setBookings(response.data);
-      setNoBookings(false);
+
+      // Filter bookings for current and next day
+      const today = new Date();
+      const nextDay = new Date(today);
+      nextDay.setDate(today.getDate() + 1);
+
+      const filteredBookings = response.data.filter(booking => {
+        const bookingDate = new Date(booking.date);
+        return bookingDate.toDateString() === today.toDateString() || bookingDate.toDateString() === nextDay.toDateString();
+      });
+
+      setBookings(filteredBookings);
+      setNoBookings(filteredBookings.length === 0);
       setSelectedDoctor(doctors.find(doctor => doctor._id === doctorId));
       setModalIsOpen(true);
     } catch (error) {
@@ -91,57 +111,78 @@ const DoctorsList = () => {
   };
 
   return (
-    <div className="flex p-8 bg-gray-50 min-h-screen">
-      {/* Sidebar */}
-      <aside className="w-1/4 pr-8">
-        <h3 className="text-xl font-bold mb-4 text-gray-800">Doctor Specializations</h3>
-        <ul>
-          {specializations.map((specialization, index) => (
-            <li
-              key={index}
-              className={`cursor-pointer p-2 rounded-lg text-center md:text-left ${
-                selectedSpecialization === specialization ? "bg-blue-500 text-white" : "hover:bg-gray-200"
-              }`}
-              onClick={() => filterDoctors(specialization)}
-            >
-              {specialization}
-            </li>
-          ))}
-        </ul>
-      </aside>
+    <div className="flex flex-col p-8 bg-gray-50 min-h-screen">
+      {/* Heading */}
+      <h1 className="text-4xl font-bold text-gray-800 mb-4 text-center">All Doctors</h1>
 
-      {/* Doctors Grid */}
-      <div className="w-3/4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredDoctors.map(doctor => (
-          <div
-            key={doctor._id}
-            className="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 transform hover:scale-105 h-96 flex flex-col"
-          >
-            <img
-              src={doctor.profilePhoto}
-              alt={doctor.name}
-              className="w-32 h-32 rounded-full mx-auto mt-6 object-cover"
-            />
-            <div className="p-6 text-center flex-grow">
-              <h2 className="text-2xl font-bold text-gray-800">{doctor.name}</h2>
-              <p className="text-gray-600 text-sm mt-2">{doctor.specialization}</p>
-            </div>
-            <div className="mt-auto mb-6 flex justify-center space-x-4">
-              <button
-                onClick={() => handleViewDetails(doctor._id)}
-                className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-300"
+      {/* Search Prompt */}
+      <p className="text-center text-gray-600 mb-4">Search doctor by name</p>
+
+      {/* Search Bar */}
+      <div className="w-full mb-4 flex justify-center">
+        <input
+          type="text"
+          placeholder="Search for a doctor by name..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-1/4 p-2 border border-gray-300 rounded-lg"
+        />
+      </div>
+
+      <div className="flex flex-1">
+        {/* Sidebar */}
+        <aside className="w-1/4 pr-8">
+          <h3 className="text-xl font-bold mb-4 text-gray-800">Doctor Specializations</h3>
+          <ul>
+            {specializations.map((specialization, index) => (
+              <li
+                key={index}
+                className={`cursor-pointer p-2 rounded-lg text-center md:text-left ${
+                  selectedSpecialization === specialization ? "bg-blue-500 text-white" : "hover:bg-gray-200"
+                }`}
+                onClick={() => filterDoctors(specialization)}
               >
-                View Details
-              </button>
-              <button
-                onClick={() => handleDeleteDoctor(doctor._id)}
-                className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors duration-300"
-              >
-                Delete
-              </button>
+                {specialization}
+              </li>
+            ))}
+          </ul>
+        </aside>
+
+        {/* Doctors Grid */}
+        <div className="w-3/4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredDoctors.map(doctor => (
+            <div
+              key={doctor._id}
+              className="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 transform hover:scale-105 h-96 flex flex-col"
+            >
+              <img
+                src={doctor.profilePhoto}
+                alt={doctor.name}
+                className="w-32 h-32 rounded-full mx-auto mt-6 object-cover"
+              />
+              <div className="p-6 text-center flex-grow">
+                <h2 className="text-2xl font-bold text-gray-800">{doctor.name}</h2>
+                <p className="text-gray-600 text-sm mt-2">{doctor.specialization}</p>
+                <p className="text-gray-600 text-sm mt-2">{doctor.hospitalName}</p>
+                <p className="text-gray-600 text-sm mt-2">{doctor.hospitalAddress}</p>
+              </div>
+              <div className="mt-auto mb-6 flex justify-center space-x-4">
+                <button
+                  onClick={() => handleViewDetails(doctor._id)}
+                  className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors duration-300"
+                >
+                  View Details
+                </button>
+                <button
+                  onClick={() => handleDeleteDoctor(doctor._id)}
+                  className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors duration-300"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       {/* Doctor Details Modal */}
@@ -152,12 +193,14 @@ const DoctorsList = () => {
         overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
       >
         {selectedDoctor && (
-          <div className="bg-white p-8 rounded-lg shadow-lg max-w-2xl w-full mx-4">
+          <div className="bg-white p-8 rounded-lg shadow-lg max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto">
             <h2 className="text-3xl font-bold text-gray-800 mb-4">{selectedDoctor.name}</h2>
             <div className="space-y-4">
               <p className="text-gray-700"><span className="font-semibold">Email:</span> {selectedDoctor.email}</p>
               <p className="text-gray-700"><span className="font-semibold">Phone:</span> {selectedDoctor.phone}</p>
               <p className="text-gray-700"><span className="font-semibold">Specialization:</span> {selectedDoctor.specialization}</p>
+              <p className="text-gray-700"><span className="font-semibold">Hospital Name:</span> {selectedDoctor.hospitalName}</p>
+              <p className="text-gray-700"><span className="font-semibold">Hospital Address:</span> {selectedDoctor.hospitalAddress}</p>
               <p className="text-gray-700"><span className="font-semibold">About:</span> {selectedDoctor.about}</p>
               <p className="text-gray-700"><span className="font-semibold">Experience:</span> {selectedDoctor.experience}</p>
               <p className="text-gray-700"><span className="font-semibold">Education:</span> {selectedDoctor.education}</p>
@@ -166,7 +209,7 @@ const DoctorsList = () => {
             </div>
             <h3 className="text-2xl font-bold text-gray-800 mt-6 mb-4">Bookings</h3>
             {noBookings ? (
-              <p className="text-gray-600">No bookings available for this doctor.</p>
+              <p className="text-gray-600">There are no bookings today.</p>
             ) : (
               <ul className="space-y-4">
                 {bookings.map(booking => (

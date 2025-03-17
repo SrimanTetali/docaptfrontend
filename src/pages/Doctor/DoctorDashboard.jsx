@@ -14,7 +14,7 @@ const DoctorDashboard = () => {
     } else {
       navigate("/doctor-login", { replace: true });
     }
-  }, []);
+  }, [navigate]); // Include navigate in the dependency array
 
   const handleLogout = () => {
     localStorage.removeItem("doctor_token");
@@ -62,9 +62,9 @@ const DoctorDashboard = () => {
       </nav>
 
       {/* Main Content */}
-      <div className="flex-1 p-6 bg-gray-100">
+      <div className="flex-1 p-0 bg-gray-100">
         {/* Nested Routes Render Here */}
-        <div className="mt-4 bg-white p-6 rounded-lg shadow-md">
+        <div className="mt-0 bg-white p-0 rounded-lg shadow-md">
           <Outlet />
         </div>
       </div>

@@ -42,7 +42,7 @@ const MyAppointments = () => {
       });
       if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
       const data = await res.json();
-      console.log("data : ", data);
+      console.log(data)
       toast.success("Appointment cancelled successfully");
       setAppointments((prev) =>
         prev.map((appt) =>
@@ -57,6 +57,12 @@ const MyAppointments = () => {
       console.error("Error cancelling appointment:", error);
       toast.error("Failed to cancel appointment");
     }
+  };
+
+  const openGoogleMaps = (hospitalName, hospitalAddress) => {
+    const query = `${hospitalName}, ${hospitalAddress}`;
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+    window.open(mapsUrl, "_blank");
   };
 
   return (
@@ -77,6 +83,9 @@ const MyAppointments = () => {
                   <p className="text-gray-600">{appointment.doctorId?.specialization}</p>
                   <p><strong>Date:</strong> {new Date(appointment.date).toDateString()}</p>
                   <p><strong>Time:</strong> {appointment.timeSlot}</p>
+                  <p><strong>Hospital Name:</strong> {appointment.doctorId?.hospitalName || "N/A"}</p>
+                  <p><strong>Hospital Address:</strong> {appointment.doctorId?.hospitalAddress || "N/A"}</p>
+                  
                   <p className={`font-semibold ${
                     appointment.status === "Pending" ? "text-yellow-500" :
                     appointment.status === "Accepted" ? "text-green-500" :
@@ -85,6 +94,26 @@ const MyAppointments = () => {
                   }`}>
                     <strong>Status:</strong> {appointment.status}
                   </p>
+
+                  {/* Show "View with Maps" button only for Pending or Accepted appointments */}
+                  {(appointment.status === "Pending" || appointment.status === "Accepted") && (
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-600">
+                        Click below to view the hospital location on maps.
+                      </p>
+                      <button
+                        onClick={() =>
+                          openGoogleMaps(
+                            appointment.doctorId?.hospitalName || "",
+                            appointment.doctorId?.hospitalAddress || ""
+                          )
+                        }
+                        className="bg-blue-500 text-white px-4 py-2 rounded mt-1 hover:bg-blue-700"
+                      >
+                        View with Maps
+                      </button>
+                    </div>
+                  )}
 
                   {/* Display cancellation details if cancelled */}
                   {appointment.status === "Cancelled" && (
@@ -95,13 +124,17 @@ const MyAppointments = () => {
                   )}
                 </div>
               </div>
+
+              {/* Cancel Button aligned to the right */}
               {appointment.status !== "Cancelled" && appointment.status !== "Completed" && (
-                <button
-                  onClick={() => setCancelingId(appointment._id)}
-                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
-                >
-                  Cancel Appointment
-                </button>
+                <div className="ml-auto">
+                  <button
+                    onClick={() => setCancelingId(appointment._id)}
+                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-700"
+                  >
+                    Cancel Appointment
+                  </button>
+                </div>
               )}
             </li>
           ))}
@@ -110,6 +143,7 @@ const MyAppointments = () => {
         <p>No appointments found.</p>
       )}
 
+      {/* Cancel Confirmation Popup */}
       {cancelingId && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
           <div className="bg-white p-6 rounded shadow-md">

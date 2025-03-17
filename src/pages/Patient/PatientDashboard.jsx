@@ -45,8 +45,8 @@ const PatientDashboard = () => {
         </div>
       </nav>
 
-      <div className="flex-1 p-6 bg-gray-100">
-        <div className="mt-4 bg-white p-6 rounded-lg shadow-md">
+      <div className="flex-1 p-0 bg-gray-100">
+        <div className="mt-0 bg-white p-0 rounded-lg shadow-md">
           <Outlet />
         </div>
       </div>

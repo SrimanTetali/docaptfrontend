@@ -259,6 +259,40 @@ const DoctorProfile = () => {
         )}
       </div>
 
+      {/* Hospital Name */}
+      <div className="mt-6">
+        <label className="block text-gray-600 font-semibold mb-1">Hospital Name:</label>
+        {isEditing ? (
+          <input
+            type="text"
+            name="hospitalName"
+            value={formData.hospitalName}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter hospital name"
+          />
+        ) : (
+          <p className="text-lg text-gray-800">{doctor.hospitalName}</p>
+        )}
+      </div>
+
+      {/* Hospital Address */}
+      <div className="mt-6">
+        <label className="block text-gray-600 font-semibold mb-1">Hospital Address:</label>
+        {isEditing ? (
+          <input
+            type="text"
+            name="hospitalAddress"
+            value={formData.hospitalAddress}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter hospital address"
+          />
+        ) : (
+          <p className="text-lg text-gray-800">{doctor.hospitalAddress}</p>
+        )}
+      </div>
+
       {/* About */}
       <div className="mt-6">
         <label className="block text-gray-600 font-semibold mb-1">About:</label>
