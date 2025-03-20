@@ -6,7 +6,7 @@ const HomeDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
-      <div className="w-full px-4">
+      <div className="w-full">
         <Outlet />
       </div>
     </div>

@@ -25,28 +25,65 @@ const PatientDashboard = () => {
 
   if (!patient) {
     return (
-      <div className="h-screen flex justify-center items-center text-lg font-semibold">
-        Loading...
+      <div className="min-h-screen flex justify-center items-center bg-gray-800">
+        <div className="text-2xl font-medium text-gray-200 animate-pulse">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col">
-      <nav className="flex justify-between items-center p-5 bg-gray-800 text-white w-full shadow-lg">
-        <div className="text-xl font-bold">Golden Life</div>
-        <div className="flex gap-5 pr-14">
-          <Link to="/patient-dashboard/phome" className="text-white font-bold hover:text-blue-400">Home</Link>
-          <Link to="/patient-dashboard/profile" className="text-white font-bold hover:text-blue-400">Profile</Link>
-          <Link to="/patient-dashboard/doctors" className="text-white font-bold hover:text-blue-400">Doctors</Link>
-          <Link to="/patient-dashboard/appointments" className="text-white font-bold hover:text-blue-400">My Appointments</Link>
-          <Link to="/patient-dashboard/pcontact" className="text-white font-bold hover:text-blue-400">Contact</Link>
-          <button onClick={handleLogout} className="text-white font-bold hover:text-blue-400">Logout</button>
+    <div className="w-full min-h-screen bg-gray-800 flex flex-col">
+      {/* Top Navbar */}
+      <nav className="w-full bg-gray-900 text-gray-200 p-6 shadow-xl">
+        <div className="flex justify-between items-center max-w-screen-xl mx-auto">
+          <div className="flex items-center gap-3">
+            <h1 className="text-3xl font-extrabold text-cyan-500 tracking-tight">Golden Life</h1>
+            <span className="text-sm font-light text-gray-200">Patient Dashboard</span>
+          </div>
+          <div className="flex items-center gap-10">
+            <Link
+              to="/patient-dashboard/phome"
+              className="text-lg font-semibold text-gray-200 hover:text-cyan-500 transition-colors duration-200"
+            >
+              Home
+            </Link>
+            <Link
+              to="/patient-dashboard/profile"
+              className="text-lg font-semibold text-gray-200 hover:text-cyan-500 transition-colors duration-200"
+            >
+              Profile
+            </Link>
+            <Link
+              to="/patient-dashboard/doctors"
+              className="text-lg font-semibold text-gray-200 hover:text-cyan-500 transition-colors duration-200"
+            >
+              Doctors
+            </Link>
+            <Link
+              to="/patient-dashboard/appointments"
+              className="text-lg font-semibold text-gray-200 hover:text-cyan-500 transition-colors duration-200"
+            >
+              Appointments
+            </Link>
+            <Link
+              to="/patient-dashboard/pcontact"
+              className="text-lg font-semibold text-gray-200 hover:text-cyan-500 transition-colors duration-200"
+            >
+              Contact
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="text-lg font-semibold bg-amber-400 text-gray-900 px-5 py-2 rounded-full hover:bg-amber-500 transition-colors duration-200"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </nav>
 
-      <div className="flex-1 p-0 bg-gray-100">
-        <div className="mt-0 bg-white p-0 rounded-lg shadow-md">
+      {/* Main Content */}
+      <div className="flex-1 p-0">
+        <div className="bg-gray-800 rounded-xl shadow-md p-0 w-full text-gray-200">
           <Outlet />
         </div>
       </div>

@@ -17,7 +17,6 @@ const AdminLogin = ({ setUser }) => {
 
     try {
       console.log("Sending data:", { email, password });
-
       const response = await fetch(`${API_URL}/admin/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -27,28 +26,20 @@ const AdminLogin = ({ setUser }) => {
       const text = await response.text();
       console.log("Raw response:", text);
 
-      if (!text) {
-        throw new Error("Empty response from server");
-      }
+      if (!text) throw new Error("Empty response from server");
 
       const data = JSON.parse(text);
 
       if (response.ok) {
         const userData = { token: data.token, role: "admin", data: data.admin };
-
-        // Save admin session
+        
         localStorage.setItem("admin_token", data.token);
         localStorage.setItem("admin_user", JSON.stringify(data.admin));
-
-        // Update state before navigation
+        
         setUser(userData);
-
         toast.success("Login successful!");
-
-        // Ensure navigation happens after state update
-        setTimeout(() => {
-          navigate("/admin-dashboard");
-        }, 0);
+        
+        setTimeout(() => navigate("/admin-dashboard"), 0);
       } else {
         toast.error(data.message || "Login failed!");
       }
@@ -61,40 +52,65 @@ const AdminLogin = ({ setUser }) => {
   };
 
   return (
-    <div
-      className="flex justify-center items-center min-h-screen bg-cover bg-center"
+    <div 
+      className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center"
       style={{ backgroundImage: `url(${LoginBackground})` }}
     >
-      <div className="bg-white bg-opacity-90 p-8 rounded-lg shadow-lg w-full max-w-xl">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4 text-center">
-          Admin Login
-        </h1>
-        <p className="text-gray-600 mb-6 text-center">
-          Please login to access the dashboard.
-        </p>
-        <form onSubmit={handleLogin} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border rounded"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border rounded"
-            required
-          />
+      <div className="w-full max-w-lg bg-white/95 backdrop-blur-md rounded-2xl shadow-xl p-8 transform transition-all hover:shadow-2xl">
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 bg-gradient-to-r from-blue-600 to-indigo-500 bg-clip-text text-transparent">
+            Admin Portal
+          </h1>
+          <p className="mt-2 text-gray-600 text-sm">
+            Sign in to manage system operations and settings.
+          </p>
+        </div>
+
+        <form onSubmit={handleLogin} className="space-y-6">
+          <div className="space-y-1">
+            <label htmlFor="email" className="text-sm font-medium text-gray-700">
+              Email Address
+            </label>
+            <input
+              id="email"
+              type="email"
+              placeholder="admin@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-gray-50"
+              required
+              disabled={loading}
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label htmlFor="password" className="text-sm font-medium text-gray-700">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all bg-gray-50"
+              required
+              disabled={loading}
+            />
+          </div>
+
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 transition disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-indigo-600 disabled:opacity-60 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading && (
+              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            )}
+            {loading ? "Logging in..." : "Sign In"}
           </button>
         </form>
       </div>

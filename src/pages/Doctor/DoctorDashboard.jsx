@@ -14,7 +14,7 @@ const DoctorDashboard = () => {
     } else {
       navigate("/doctor-login", { replace: true });
     }
-  }, [navigate]); // Include navigate in the dependency array
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem("doctor_token");
@@ -25,46 +25,61 @@ const DoctorDashboard = () => {
 
   if (doctor === null) {
     return (
-      <div className="h-screen flex justify-center items-center text-lg font-semibold">
-        Loading...
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-2xl font-medium text-gray-500 animate-pulse">
+          Loading...
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Navbar */}
-      <nav className="bg-blue-600 text-white p-4 flex justify-between items-center shadow-lg">
-        <h2 className="text-xl font-bold">Doctor Dashboard</h2>
-        <ul className="flex space-x-6">
+      <nav className="bg-white border-b border-gray-200 p-6 flex justify-between items-center shadow-sm sticky top-0 z-10">
+        <h2 className="text-3xl font-semibold text-gray-800">
+          Doctor Dashboard
+        </h2>
+        <ul className="flex items-center space-x-8">
           <li>
-            <Link to="/doctor-dashboard/dashboard" className="hover:underline">
+            <Link
+              to="/doctor-dashboard/dashboard"
+              className="text-gray-600 hover:text-teal-600 font-medium text-lg px-4 py-3 rounded-md hover:bg-teal-50 transition-colors duration-200"
+            >
               Dashboard
             </Link>
           </li>
           <li>
-            <Link to="/doctor-dashboard/profile" className="hover:underline">
+            <Link
+              to="/doctor-dashboard/profile"
+              className="text-gray-600 hover:text-teal-600 font-medium text-lg px-4 py-3 rounded-md hover:bg-teal-50 transition-colors duration-200"
+            >
               Profile
             </Link>
           </li>
           <li>
-            <Link to="/doctor-dashboard/appointments" className="hover:underline">
+            <Link
+              to="/doctor-dashboard/appointments"
+              className="text-gray-600 hover:text-teal-600 font-medium text-lg px-4 py-3 rounded-md hover:bg-teal-50 transition-colors duration-200"
+            >
               Appointments
             </Link>
           </li>
+          <li>
+            <button
+              onClick={handleLogout}
+              className="bg-teal-600 text-white px-6 py-3 rounded-md text-lg font-medium hover:bg-teal-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50"
+            >
+              Logout
+            </button>
+          </li>
         </ul>
-        <button
-          onClick={handleLogout}
-          className="bg-red-500 px-4 py-2 rounded hover:bg-red-700 transition"
-        >
-          Logout
-        </button>
       </nav>
 
       {/* Main Content */}
-      <div className="flex-1 p-0 bg-gray-100">
-        {/* Nested Routes Render Here */}
-        <div className="mt-0 bg-white p-0 rounded-lg shadow-md">
+      <div className="flex-1 p-4 bg-gray-50 w-full">
+        <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100 w-full">
+          {/* Nested Routes Render Here */}
           <Outlet />
         </div>
       </div>

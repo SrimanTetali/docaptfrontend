@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
 import { BriefcaseMedical, User, X } from "lucide-react";
 
-const AllDoctors = () => {
+const AllDoctors = ({ user }) => {
   const [doctors, setDoctors] = useState([]);
   const [filteredDoctors, setFilteredDoctors] = useState([]);
   const [specialties, setSpecialties] = useState([]);
@@ -18,18 +19,16 @@ const AllDoctors = () => {
     reason: "",
   });
   const [bookedSlots, setBookedSlots] = useState([]);
+  const location = useLocation();
 
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/patient/doctors", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("patient_token")}`,
-          },
+          headers: { Authorization: `Bearer ${localStorage.getItem("patient_token")}` },
         });
         setDoctors(response.data);
         setFilteredDoctors(response.data);
-
         const uniqueSpecialties = ["All Doctors", ...new Set(response.data.map((doc) => doc.specialization))];
         setSpecialties(uniqueSpecialties);
       } catch (error) {
@@ -43,23 +42,23 @@ const AllDoctors = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedDoctor && appointmentDetails.date) {
-      fetchBookedSlots();
-    }
+    const params = new URLSearchParams(location.search);
+    const specialty = params.get("specialty");
+    if (specialty) filterDoctors(specialty);
+  }, [location.search, doctors]);
+
+  useEffect(() => {
+    if (selectedDoctor && appointmentDetails.date) fetchBookedSlots();
   }, [selectedDoctor, appointmentDetails.date]);
 
   const fetchBookedSlots = async () => {
     try {
       const response = await axios.get(`http://localhost:5000/api/patient/doctors/${selectedDoctor._id}/bookings`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("patient_token")}`,
-        },
+        headers: { Authorization: `Bearer ${localStorage.getItem("patient_token")}` },
       });
-
       const bookedSlotsOnDate = response.data
         .filter((booking) => new Date(booking.date).toISOString().split('T')[0] === appointmentDetails.date)
         .map((booking) => booking.timeSlot);
-
       setBookedSlots(bookedSlotsOnDate);
     } catch (error) {
       console.error("Error fetching booked slots", error);
@@ -73,7 +72,6 @@ const AllDoctors = () => {
 
   const handleBookAppointment = async () => {
     if (!selectedDoctor) return;
-
     const bookingData = {
       doctorId: selectedDoctor._id,
       date: appointmentDetails.date,
@@ -81,7 +79,6 @@ const AllDoctors = () => {
       urgency: appointmentDetails.urgency,
       reason: appointmentDetails.reason,
     };
-
     try {
       await axios.post("http://localhost:5000/api/patient/book-session", bookingData, {
         headers: {
@@ -89,7 +86,6 @@ const AllDoctors = () => {
           "Content-Type": "application/json",
         },
       });
-
       alert("Appointment booked successfully!");
       setSelectedDoctor(null);
       setAppointmentDetails({ date: "", timeSlot: "", urgency: "Routine", reason: "" });
@@ -101,18 +97,18 @@ const AllDoctors = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row gap-6 p-6">
+    <div className="min-h-screen bg-gray-700 p-6 flex flex-col md:flex-row gap-6">
       {/* Sidebar */}
-      <aside className="w-full md:w-1/4 p-6 bg-gray-200 rounded-lg shadow">
-        <h2 className="text-xl font-bold text-center mb-6">Doctor Specialties</h2>
+      <aside className="w-full md:w-1/4 bg-gray-800 rounded-xl shadow-md p-6">
+        <h2 className="text-2xl font-semibold text-amber-300 mb-6 text-center">Specialties</h2>
         <ul className="space-y-2">
           {specialties.map((specialty, index) => (
             <li
               key={index}
-              className={`p-3 rounded-lg cursor-pointer transition ${
+              className={`p-3 rounded-lg cursor-pointer transition-all duration-200 ${
                 selectedSpecialty === specialty
-                  ? "bg-blue-500 text-white"
-                  : "hover:bg-blue-100"
+                  ? "bg-cyan-400 text-gray-900 font-semibold"
+                  : "text-gray-200 hover:bg-gray-600 hover:text-cyan-300"
               }`}
               onClick={() => filterDoctors(specialty)}
             >
@@ -125,28 +121,35 @@ const AllDoctors = () => {
       {/* Doctors List */}
       <div className="w-full md:w-3/4">
         {loading ? (
-          <p className="text-center text-blue-500">Loading doctors...</p>
+          <p className="text-center text-cyan-400 animate-pulse">Loading doctors...</p>
         ) : error ? (
-          <p className="text-center text-red-500">{error}</p>
+          <p className="text-center text-red-400">{error}</p>
         ) : filteredDoctors.length === 0 ? (
-          <p className="text-center text-gray-500">No doctors found.</p>
+          <p className="text-center text-gray-400">No doctors found.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredDoctors.map((doctor) => (
               <div
                 key={doctor._id}
-                className="block p-4 border rounded-lg shadow-md transition-transform transform hover:scale-105 hover:shadow-lg bg-white cursor-pointer"
+                className="bg-gray-800 p-4 rounded-xl shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer border border-gray-600"
                 onClick={() => setSelectedDoctor(doctor)}
               >
-                <img src={doctor.profilePhoto} alt={doctor.name} className="w-full h-40 object-cover rounded-lg mb-4" />
-                <h3 className="text-xl font-bold text-blue-600">{doctor.name}</h3>
-                <p className="flex items-center text-gray-600">
-                  <BriefcaseMedical className="w-4 h-4 mr-2 text-green-500" />
+                <div className="relative w-full aspect-[11/12] mb-4 overflow-hidden rounded-lg">
+                  <img
+                    src={doctor.profilePhoto || "https://via.placeholder.com/300x375?text=No+Image"}
+                    alt={doctor.name}
+                    className="w-full h-full object-cover object-center transition-transform duration-300 hover:scale-110"
+                    onError={(e) => (e.target.src = "https://via.placeholder.com/300x375?text=No+Image")}
+                  />
+                </div>
+                <h3 className="text-xl font-semibold text-cyan-400">{doctor.name}</h3>
+                <p className="flex items-center text-gray-200 text-sm">
+                  <BriefcaseMedical className="w-4 h-4 mr-2 text-amber-300" />
                   {doctor.specialization}
                 </p>
-                <p className="text-gray-500 flex items-center">
-                  <User className="w-4 h-4 mr-2 text-gray-500" />
-                  Experience: {doctor.experience} years
+                <p className="flex items-center text-gray-300 text-sm">
+                  <User className="w-4 h-4 mr-2 text-gray-400" />
+                  {doctor.experience} years
                 </p>
               </div>
             ))}
@@ -156,76 +159,77 @@ const AllDoctors = () => {
 
       {/* Doctor Profile Modal */}
       {selectedDoctor && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-8 rounded-lg shadow-2xl max-w-4xl w-full relative" style={{ height: "auto", maxHeight: "90vh", overflowY: "auto" }}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-gray-800 p-6 rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative border border-gray-600">
             {/* Close Button */}
             <button
               onClick={() => setSelectedDoctor(null)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-red-500 transition-colors"
+              className="absolute top-4 right-4 text-gray-300 hover:text-red-400 transition-colors duration-200"
             >
-              <X size={24} />
+              <X FontFace={24} />
             </button>
 
             {/* Doctor Profile Details */}
             <div className="flex flex-col md:flex-row gap-6">
               {/* Doctor Image */}
               <div className="w-full md:w-1/3">
-                <img
-                  src={selectedDoctor.profilePhoto}
-                  alt={selectedDoctor.name}
-                  className="w-full h-48 object-cover rounded-lg shadow-md"
-                />
+                <div className="relative w-full aspect-[4/5] overflow-hidden rounded-lg shadow-md border border-gray-600">
+                  <img
+                    src={selectedDoctor.profilePhoto || "https://via.placeholder.com/300x375?text=No+Image"}
+                    alt={selectedDoctor.name}
+                    className="w-full h-full object-cover object-center"
+                    onError={(e) => (e.target.src = "https://via.placeholder.com/300x375?text=No+Image")}
+                  />
+                </div>
               </div>
 
               {/* Doctor Information */}
-              <div className="w-full md:w-2/3">
-                <h2 className="text-3xl font-bold text-blue-800 mb-2">{selectedDoctor.name}</h2>
-                <p className="text-lg text-gray-700 font-semibold mb-1">{selectedDoctor.specialization}</p>
-                <p className="text-gray-600 mb-2">Education: {selectedDoctor.education}</p>
-                <p className="text-gray-600 mb-4">
-                  <span className="font-semibold">Experience:</span> {selectedDoctor.experience} years
-                </p>
-                <p className="text-gray-800 mb-6">{selectedDoctor.about}</p>
-                <p className="text-xl font-semibold text-green-600">
-                  Consulting Fee: ₹{selectedDoctor.consultingFee}
+              <div className="w-full md:w-2/3 text-gray-200">
+                <h2 className="text-3xl font-semibold text-cyan-400 mb-2">{selectedDoctor.name}</h2>
+                <p className="text-lg text-amber-300 font-medium mb-2">{selectedDoctor.specialization}</p>
+                <p className="text-gray-300 mb-2">Education: {selectedDoctor.education}</p>
+                <p className="text-gray-300 mb-2">Experience: {selectedDoctor.experience} years</p>
+                <p className="text-gray-300 mb-2">Hospital: {selectedDoctor.hospitalName}</p>
+                <p className="text-gray-300 mb-4">Address: {selectedDoctor.hospitalAddress}</p>
+                <p className="text-gray-200 mb-4">{selectedDoctor.about}</p>
+                <p className="text-xl font-medium text-green-400">
+                  Fee: ₹{selectedDoctor.consultingFee}
                 </p>
               </div>
             </div>
 
             {/* Divider */}
-            <hr className="my-6 border-t border-gray-200" />
+            <hr className="my-6 border-gray-600" />
 
             {/* Book Appointment Form */}
-            <div>
-              <h3 className="text-2xl font-bold text-blue-800 mb-4">Book Appointment</h3>
+            <div className="text-gray-200">
+              <h3 className="text-2xl font-semibold text-cyan-400 mb-6">Book Appointment</h3>
 
               {/* Date Input */}
               <div className="mb-4">
-                <label className="block text-gray-700 font-semibold mb-2">Date:</label>
+                <label className="block text-gray-200 font-medium mb-2">Date</label>
                 <input
                   type="date"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400"
                   value={appointmentDetails.date}
-                  onChange={(e) =>
-                    setAppointmentDetails({ ...appointmentDetails, date: e.target.value })
-                  }
+                  onChange={(e) => setAppointmentDetails({ ...appointmentDetails, date: e.target.value })}
                 />
               </div>
 
               {/* Time Slot Selection */}
               <div className="mb-4">
-                <label className="block text-gray-700 font-semibold mb-2">Time Slot:</label>
-                <div className="grid grid-cols-4 gap-3">
+                <label className="block text-gray-200 font-medium mb-2">Time Slot</label>
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                   {selectedDoctor.timeSlots.map((slot) => (
                     <button
                       key={slot}
                       onClick={() => setSelectedTimeSlot(slot)}
-                      className={`px-4 py-2 text-sm rounded-lg transition-colors ${
+                      className={`p-2 text-sm rounded-lg transition-all duration-200 ${
                         bookedSlots.includes(slot)
-                          ? "bg-red-600 text-white cursor-not-allowed"
+                          ? "bg-red-500 text-white cursor-not-allowed"
                           : selectedTimeSlot === slot
-                          ? "bg-blue-600 text-white"
-                          : "bg-blue-50 text-blue-600 hover:bg-blue-100"
+                          ? "bg-cyan-400 text-gray-900"
+                          : "bg-gray-600 text-gray-200 hover:bg-gray-500 hover:text-cyan-300"
                       }`}
                       disabled={bookedSlots.includes(slot)}
                     >
@@ -237,13 +241,11 @@ const AllDoctors = () => {
 
               {/* Urgency Selection */}
               <div className="mb-4">
-                <label className="block text-gray-700 font-semibold mb-2">Urgency:</label>
+                <label className="block text-gray-200 font-medium mb-2">Urgency</label>
                 <select
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400"
                   value={appointmentDetails.urgency}
-                  onChange={(e) =>
-                    setAppointmentDetails({ ...appointmentDetails, urgency: e.target.value })
-                  }
+                  onChange={(e) => setAppointmentDetails({ ...appointmentDetails, urgency: e.target.value })}
                 >
                   <option value="Routine">Routine</option>
                   <option value="Emergency">Emergency</option>
@@ -252,24 +254,22 @@ const AllDoctors = () => {
 
               {/* Reason for Appointment */}
               <div className="mb-6">
-                <label className="block text-gray-700 font-semibold mb-2">Reason:</label>
+                <label className="block text-gray-200 font-medium mb-2">Reason</label>
                 <textarea
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  rows="4"
+                  className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                  rows="3"
                   value={appointmentDetails.reason}
-                  onChange={(e) =>
-                    setAppointmentDetails({ ...appointmentDetails, reason: e.target.value })
-                  }
-                  placeholder="Describe your reason for the appointment..."
+                  onChange={(e) => setAppointmentDetails({ ...appointmentDetails, reason: e.target.value })}
+                  placeholder="What’s the purpose of your visit?"
                 />
               </div>
 
               {/* Book Appointment Button */}
               <button
                 onClick={handleBookAppointment}
-                className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                className="w-full bg-amber-300 text-gray-900 px-6 py-3 rounded-lg font-semibold hover:bg-amber-400 transition-all duration-200"
               >
-                Book Appointment
+                Book Now
               </button>
             </div>
           </div>

@@ -1,14 +1,10 @@
 import React, { useState } from "react";
-import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 import InputMask from "react-input-mask";
-import Modal from "react-modal";
 import { Tooltip } from "react-tooltip";
+import "react-toastify/dist/ReactToastify.css"; // Import the default styles
 
 const API_URL = "http://localhost:5000/api/admin";
-
-// Set the app element for react-modal
-Modal.setAppElement("#root");
 
 const AddDoctor = () => {
   const [formData, setFormData] = useState({
@@ -25,8 +21,6 @@ const AddDoctor = () => {
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const navigate = useNavigate();
 
   const validateForm = () => {
     const newErrors = {};
@@ -69,7 +63,16 @@ const AddDoctor = () => {
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("Doctor registered successfully!");
+        toast.success("Doctor registration successful!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progressStyle: { background: "#10B981" }, // Green progress bar
+          style: { background: "#D1FAE5", color: "#065F46" }, // Light green background, dark green text
+        });
         setFormData({
           name: "",
           email: "",
@@ -82,221 +85,114 @@ const AddDoctor = () => {
           hospitalName: "",
           hospitalAddress: "",
         });
-        setIsModalOpen(true);
       } else {
-        toast.error(data.message || "Doctor registration failed!");
+        toast.error(data.message || "Something went wrong. Doctor registration failed!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progressStyle: { background: "#EF4444" }, // Red progress bar
+          style: { background: "#FEE2E2", color: "#991B1B" }, // Light red background, dark red text
+        });
       }
     } catch (error) {
       console.error("Registration Error:", error);
-      toast.error(error.message || "An error occurred. Please try again.");
+      toast.error("Something went wrong. Doctor registration failed!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progressStyle: { background: "#EF4444" },
+        style: { background: "#FEE2E2", color: "#991B1B" },
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const handleConfirmation = () => {
-    setIsModalOpen(false);
-    navigate("/admin-dashboard");
-  };
-
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-blue-50 to-purple-50">
-      <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-2xl">
-        <h2 className="text-3xl font-bold text-center text-blue-800 mb-8">Register Doctor</h2>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-gray-700 font-medium mb-2" data-tip data-for="nameTooltip">
-                Name
-              </label>
-              <Tooltip id="nameTooltip" place="top" effect="solid">
-                Enter the doctor's full name
-              </Tooltip>
-              <input
-                type="text"
-                name="name"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-              {errors.name && <span className="text-red-500 text-sm">{errors.name}</span>}
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2" data-tip data-for="emailTooltip">
-                Email
-              </label>
-              <Tooltip id="emailTooltip" place="top" effect="solid">
-                Enter the doctor's email address
-              </Tooltip>
-              <input
-                type="email"
-                name="email"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-              {errors.email && <span className="text-red-500 text-sm">{errors.email}</span>}
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2" data-tip data-for="passwordTooltip">
-                Password
-              </label>
-              <Tooltip id="passwordTooltip" place="top" effect="solid">
-                Enter a secure password
-              </Tooltip>
-              <input
-                type="password"
-                name="password"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
-              {errors.password && <span className="text-red-500 text-sm">{errors.password}</span>}
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2" data-tip data-for="phoneTooltip">
-                Phone
-              </label>
-              <Tooltip id="phoneTooltip" place="top" effect="solid">
-                Enter the doctor's phone number
-              </Tooltip>
-              <InputMask
-                mask="9999999999"
-                name="phone"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter phone number"
-                value={formData.phone}
-                onChange={handleChange}
-                required
-              />
-              {errors.phone && <span className="text-red-500 text-sm">{errors.phone}</span>}
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2" data-tip data-for="genderTooltip">
-                Gender
-              </label>
-              <Tooltip id="genderTooltip" place="top" effect="solid">
-                Select the doctor's gender
-              </Tooltip>
-              <select
-                name="gender"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.gender}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
-              {errors.gender && <span className="text-red-500 text-sm">{errors.gender}</span>}
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2" data-tip data-for="specializationTooltip">
-                Specialization
-              </label>
-              <Tooltip id="specializationTooltip" place="top" effect="solid">
-                Enter the doctor's specialization
-              </Tooltip>
-              <input
-                type="text"
-                name="specialization"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter specialization"
-                value={formData.specialization}
-                onChange={handleChange}
-                required
-              />
-              {errors.specialization && <span className="text-red-500 text-sm">{errors.specialization}</span>}
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2" data-tip data-for="educationTooltip">
-                Education
-              </label>
-              <Tooltip id="educationTooltip" place="top" effect="solid">
-                Enter the doctor's educational qualifications
-              </Tooltip>
-              <input
-                type="text"
-                name="education"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter education"
-                value={formData.education}
-                onChange={handleChange}
-                required
-              />
-              {errors.education && <span className="text-red-500 text-sm">{errors.education}</span>}
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2" data-tip data-for="experienceTooltip">
-                Experience (in years)
-              </label>
-              <Tooltip id="experienceTooltip" place="top" effect="solid">
-                Enter the doctor's experience in years
-              </Tooltip>
-              <input
-                type="number"
-                name="experience"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter experience"
-                value={formData.experience}
-                onChange={handleChange}
-                required
-              />
-              {errors.experience && <span className="text-red-500 text-sm">{errors.experience}</span>}
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2" data-tip data-for="hospitalNameTooltip">
-                Hospital Name
-              </label>
-              <Tooltip id="hospitalNameTooltip" place="top" effect="solid">
-                Enter the name of the hospital
-              </Tooltip>
-              <input
-                type="text"
-                name="hospitalName"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter hospital name"
-                value={formData.hospitalName}
-                onChange={handleChange}
-                required
-              />
-              {errors.hospitalName && <span className="text-red-500 text-sm">{errors.hospitalName}</span>}
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2" data-tip data-for="hospitalAddressTooltip">
-                Hospital Address
-              </label>
-              <Tooltip id="hospitalAddressTooltip" place="top" effect="solid">
-                Enter the address of the hospital
-              </Tooltip>
-              <input
-                type="text"
-                name="hospitalAddress"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter hospital address"
-                value={formData.hospitalAddress}
-                onChange={handleChange}
-                required
-              />
-              {errors.hospitalAddress && <span className="text-red-500 text-sm">{errors.hospitalAddress}</span>}
-            </div>
+    <div className="min-h-screen flex justify-center items-center bg-gradient-to-br from-gray-50 via-indigo-50 to-purple-100 p-10">
+      <div className="bg-white rounded-2xl shadow-xl p-10 w-full max-w-4xl transform hover:shadow-2xl transition-all duration-300">
+        <h2 className="text-4xl font-bold text-center text-gray-900 mb-10 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
+          Register New Doctor
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {[
+              { label: "Full Name", name: "name", type: "text", placeholder: "Dr. John Doe", tooltip: "Enter the doctor's full name" },
+              { label: "Email Address", name: "email", type: "email", placeholder: "doctor@example.com", tooltip: "Enter the doctor's email address" },
+              { label: "Password", name: "password", type: "password", placeholder: "••••••••", tooltip: "Enter a secure password" },
+              { label: "Phone Number", name: "phone", type: "tel", placeholder: "123-456-7890", tooltip: "Enter the doctor's phone number", mask: "9999999999" },
+              { label: "Gender", name: "gender", type: "select", tooltip: "Select the doctor's gender" },
+              { label: "Specialization", name: "specialization", type: "text", placeholder: "Cardiology", tooltip: "Enter the doctor's specialization" },
+              { label: "Education", name: "education", type: "text", placeholder: "MBBS, MD", tooltip: "Enter the doctor's educational qualifications" },
+              { label: "Experience (Years)", name: "experience", type: "number", placeholder: "10", tooltip: "Enter the doctor's experience in years" },
+              { label: "Hospital Name", name: "hospitalName", type: "text", placeholder: "City Hospital", tooltip: "Enter the name of the hospital" },
+              { label: "Hospital Address", name: "hospitalAddress", type: "text", placeholder: "123 Main St", tooltip: "Enter the address of the hospital" },
+            ].map((field) => (
+              <div key={field.name} className="relative">
+                <label
+                  className="block text-gray-800 font-medium mb-2 text-sm uppercase tracking-wide"
+                  data-tip
+                  data-for={`${field.name}Tooltip`}
+                >
+                  {field.label}
+                </label>
+                <Tooltip id={`${field.name}Tooltip`} place="top" effect="solid" className="bg-gray-800 text-white rounded-md p-2 text-sm">
+                  {field.tooltip}
+                </Tooltip>
+                {field.type === "select" ? (
+                  <select
+                    name={field.name}
+                    className="w-full p-4 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all duration-300 shadow-sm hover:shadow-md"
+                    value={formData[field.name]}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                ) : field.mask ? (
+                  <InputMask
+                    mask={field.mask}
+                    name={field.name}
+                    className="w-full p-4 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all duration-300 shadow-sm hover:shadow-md"
+                    placeholder={field.placeholder}
+                    value={formData[field.name]}
+                    onChange={handleChange}
+                    required
+                  />
+                ) : (
+                  <input
+                    type={field.type}
+                    name={field.name}
+                    className="w-full p-4 rounded-xl bg-gray-100 border border-gray-200 text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all duration-300 shadow-sm hover:shadow-md"
+                    placeholder={field.placeholder}
+                    value={formData[field.name]}
+                    onChange={handleChange}
+                    required
+                  />
+                )}
+                {errors[field.name] && (
+                  <span className="absolute -bottom-5 left-0 text-red-500 text-xs font-medium">{errors[field.name]}</span>
+                )}
+              </div>
+            ))}
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition duration-300 disabled:opacity-50 flex items-center justify-center"
+            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 rounded-xl font-semibold shadow-lg hover:from-indigo-700 hover:to-purple-700 disabled:opacity-60 flex items-center justify-center transform hover:scale-105 transition-all duration-300"
             disabled={loading}
           >
             {loading ? (
-              <div className="spinner-border animate-spin inline-block w-4 h-4 border-4 rounded-full" role="status">
-                <span className="visually-hidden">Loading...</span>
+              <div className="animate-spin w-6 h-6 border-4 border-t-transparent border-white rounded-full" role="status">
+                <span className="sr-only">Loading...</span>
               </div>
             ) : (
               "Register Doctor"
@@ -304,22 +200,17 @@ const AddDoctor = () => {
           </button>
         </form>
       </div>
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={() => setIsModalOpen(false)}
-        contentLabel="Registration Successful"
-        className="modal bg-white p-8 rounded-xl shadow-2xl max-w-md mx-auto mt-20"
-        overlayClassName="overlay fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start"
-      >
-        <h2 className="text-2xl font-bold text-blue-800 mb-4">Registration Successful!</h2>
-        <p className="text-gray-700 mb-6">The doctor has been registered successfully.</p>
-        <button
-          onClick={handleConfirmation}
-          className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition duration-300"
-        >
-          Go to Dashboard
-        </button>
-      </Modal>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };
