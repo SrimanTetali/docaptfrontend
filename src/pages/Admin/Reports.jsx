@@ -1,229 +1,358 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import moment from "moment";
-import { Bar, Line, Pie } from "react-chartjs-2";
+// Reports.jsx
+import React, { useState, useEffect } from 'react';
+import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   BarElement,
-  LineElement,
-  PointElement,
-  ArcElement,
   Title,
   Tooltip,
-  Legend,
-} from "chart.js";
+  Legend
+} from 'chart.js';
 
-// Register ChartJS components
 ChartJS.register(
   CategoryScale,
   LinearScale,
   BarElement,
-  LineElement,
-  PointElement,
-  ArcElement,
   Title,
   Tooltip,
   Legend
 );
 
 const Reports = () => {
-  const [filter, setFilter] = useState("week");
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [specializationFilter, setSpecializationFilter] = useState('');
+  const [expandedSections, setExpandedSections] = useState([true, false, false, false, false]);
   const [doctors, setDoctors] = useState([]);
-  const [patients, setPatients] = useState([]);
   const [bookings, setBookings] = useState([]);
-  const [contacts, setContacts] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchAllData();
+    fetchDoctors();
+    fetchBookings();
   }, []);
 
-  const fetchAllData = async () => {
-    try {
-      const token = localStorage.getItem("admin_token");
-      const [doctorsRes, patientsRes, bookingsRes, contactsRes] = await Promise.all([
-        axios.get("http://localhost:5000/api/doctorsdata", { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get("http://localhost:5000/api/patientsdata", { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get("http://localhost:5000/api/bookingsdata", { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get("http://localhost:5000/api/contact", { headers: { Authorization: `Bearer ${token}` } }),
-      ]);
-
-      setDoctors(doctorsRes.data);
-      setPatients(patientsRes.data);
-      setBookings(bookingsRes.data);
-      setContacts(contactsRes.data);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-      setLoading(false);
-    }
+  const fetchDoctors = async () => {
+    const response = await fetch('http://localhost:5000/api/doctorsdata');
+    const data = await response.json();
+    setDoctors(data);
   };
 
-  const filterDataByTime = (data, timeField, period) => {
-    const now = moment();
-    if (period === "today") return data.filter(item => moment(item[timeField]).isSame(now, "day"));
-    if (period === "week") return data.filter(item => moment(item[timeField]).isAfter(now.clone().subtract(7, "days")));
-    if (period === "month") return data.filter(item => moment(item[timeField]).isAfter(now.clone().subtract(30, "days")));
-    return data; // "all"
+  const fetchBookings = async () => {
+    const response = await fetch('http://localhost:5000/api/bookingsdata');
+    const data = await response.json();
+    setBookings(data);
   };
 
-  const getAppointmentTrends = () => {
-    const filteredBookings = filterDataByTime(bookings, "date", filter);
-    const days = filter === "today" ? 1 : filter === "week" ? 7 : 30;
-    const labels = Array.from({ length: days }, (_, i) =>
-      moment().subtract(days - 1 - i, "days").format("MMM D")
-    );
-    const data = labels.map(label =>
-      filteredBookings.filter(b => moment(b.date).format("MMM D") === label).length
-    );
+  const months = Array.from({ length: 12 }, (_, i) => i + 1);
+  const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - 2 + i);
 
+  // Dynamic Y-axis scale function
+  const getYScale = (maxValue) => {
+    if (maxValue <= 20) return { stepSize: 5, max: Math.ceil(maxValue / 5) * 5 };
+    if (maxValue <= 100) return { stepSize: 10, max: Math.ceil(maxValue / 10) * 10 };
+    return { stepSize: 50, max: Math.ceil(maxValue / 50) * 50 };
+  };
+
+  const chartOptions = (maxValue) => {
+    const scale = getYScale(maxValue);
     return {
-      labels,
-      datasets: [
-        {
-          label: "Appointments",
-          data,
-          borderColor: "#4F46E5",
-          backgroundColor: "rgba(79, 70, 229, 0.2)",
-          tension: 0.4,
-          fill: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { enabled: true },
+        datalabels: {
+          display: true,
+          color: '#fff',
+          font: { weight: 'bold' },
+          anchor: 'end',
+          align: 'top',
+          formatter: (value) => value || ''
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: scale.max,
+          ticks: { stepSize: scale.stepSize },
+          grid: { color: 'rgba(0,0,0,0.05)' }
         },
-      ],
+        x: { grid: { display: false } }
+      }
     };
   };
 
-  const getBookingStatus = () => {
-    const filteredBookings = filterDataByTime(bookings, "date", filter);
-    const statusCount = filteredBookings.reduce((acc, booking) => {
-      acc[booking.status] = (acc[booking.status] || 0) + 1;
-      return acc;
-    }, {});
+  // Defined 9 specializations
+  const specializations = [
+    'Cardiologist', 'Dermatologist', 'Pediatrician', 'Neurologist', 
+    'Orthopedist', 'Ophthalmologist', 'Endocrinologist', 'Gynecologist', 
+    'General Physician'
+  ];
 
-    return {
-      labels: Object.keys(statusCount),
-      datasets: [
-        {
-          data: Object.values(statusCount),
-          backgroundColor: ["#10B981", "#3B82F6", "#EF4444", "#6B7280"],
-        },
-      ],
-    };
+  // 1. Bookings by Specialization
+  const specializationData = {
+    labels: specializations,
+    datasets: [{
+      data: specializations.map(spec => 
+        bookings.filter(b => {
+          const doctor = doctors.find(d => d._id === b.doctorId);
+          return doctor?.specialization === spec && 
+            new Date(b.date).getMonth() + 1 === selectedMonth &&
+            new Date(b.date).getFullYear() === selectedYear;
+        }).length),
+      backgroundColor: '#3b82f6',
+      borderColor: '#2563eb',
+      borderWidth: 1
+    }]
   };
+  const specMax = Math.max(...specializationData.datasets[0].data);
 
+  // 2. Bookings by Status
+  const statusData = {
+    labels: ['Pending', 'Accepted', 'Rejected', 'Completed', 'Cancelled'],
+    datasets: [{
+      data: [
+        bookings.filter(b => b.status === 'Pending' && new Date(b.date).getMonth() + 1 === selectedMonth && new Date(b.date).getFullYear() === selectedYear).length,
+        bookings.filter(b => b.status === 'Accepted' && new Date(b.date).getMonth() + 1 === selectedMonth && new Date(b.date).getFullYear() === selectedYear).length,
+        bookings.filter(b => b.status === 'Rejected' && new Date(b.date).getMonth() + 1 === selectedMonth && new Date(b.date).getFullYear() === selectedYear).length,
+        bookings.filter(b => b.status === 'Completed' && new Date(b.date).getMonth() + 1 === selectedMonth && new Date(b.date).getFullYear() === selectedYear).length,
+        bookings.filter(b => b.status === 'Cancelled' && new Date(b.date).getMonth() + 1 === selectedMonth && new Date(b.date).getFullYear() === selectedYear).length
+      ],
+      backgroundColor: '#3b82f6',
+      borderColor: '#2563eb',
+      borderWidth: 1
+    }]
+  };
+  const statusMax = Math.max(...statusData.datasets[0].data);
+
+  // 3. Yearly Bookings
+  const yearlyData = {
+    labels: months.map(m => new Date(0, m - 1).toLocaleString('default', { month: 'short' })),
+    datasets: [{
+      data: months.map(m => 
+        bookings.filter(b => 
+          new Date(b.date).getMonth() + 1 === m && 
+          new Date(b.date).getFullYear() === selectedYear
+        ).length),
+      backgroundColor: '#3b82f6',
+      borderColor: '#2563eb',
+      borderWidth: 1
+    }]
+  };
+  const yearlyMax = Math.max(...yearlyData.datasets[0].data);
+
+  // 4. Doctor Performance
   const getDoctorPerformance = () => {
-    const filteredBookings = filterDataByTime(bookings, "date", filter);
-    const doctorCount = filteredBookings.reduce((acc, booking) => {
-      const doctor = doctors.find(d => d._id === booking.doctorId);
-      const name = doctor ? doctor.name : "Unknown";
-      acc[name] = (acc[name] || 0) + 1;
-      return acc;
-    }, {});
-
-    return {
-      labels: Object.keys(doctorCount),
-      datasets: [
-        {
-          label: "Appointments",
-          data: Object.values(doctorCount),
-          backgroundColor: "#8B5CF6",
-        },
-      ],
-    };
+    return doctors
+      .filter(doc => !specializationFilter || doc.specialization === specializationFilter)
+      .map(doc => ({
+        name: doc.name,
+        total: bookings.filter(b => 
+          b.doctorId === doc._id && 
+          new Date(b.date).getMonth() + 1 === selectedMonth &&
+          new Date(b.date).getFullYear() === selectedYear
+        ).length,
+        completed: bookings.filter(b => 
+          b.doctorId === doc._id && 
+          b.status === 'Completed' &&
+          new Date(b.date).getMonth() + 1 === selectedMonth &&
+          new Date(b.date).getFullYear() === selectedYear
+        ).length,
+        cancelled: bookings.filter(b => 
+          b.doctorId === doc._id && 
+          b.status === 'Cancelled' &&
+          new Date(b.date).getMonth() + 1 === selectedMonth &&
+          new Date(b.date).getFullYear() === selectedYear
+        ).length
+      }));
   };
 
-  const getPatientActivity = () => {
-    const filteredPatients = filterDataByTime(patients, "createdAt", filter);
-    const newPatients = filteredPatients.length;
-    const returningPatients = filterDataByTime(bookings, "date", filter).filter(b => {
-      const patient = patients.find(p => p._id === b.patientId);
-      return patient && moment(patient.createdAt).isBefore(moment(b.date).subtract(1, "days"));
-    }).length;
-
-    return {
-      labels: ["New Patients", "Returning Patients"],
-      datasets: [
-        {
-          data: [newPatients, returningPatients],
-          backgroundColor: ["#F59E0B", "#10B981"],
-        },
-      ],
-    };
+  // 5. Cancellation Report
+  const getCancellationData = () => {
+    return months.map(m => ({
+      month: new Date(0, m - 1).toLocaleString('default', { month: 'short' }),
+      patientCancelled: bookings.filter(b => 
+        b.cancelledBy === 'patient' && 
+        new Date(b.date).getMonth() + 1 === m &&
+        new Date(b.date).getFullYear() === selectedYear
+      ).length,
+      doctorCancelled: bookings.filter(b => 
+        b.cancelledBy === 'doctor' && 
+        new Date(b.date).getMonth() + 1 === m &&
+        new Date(b.date).getFullYear() === selectedYear
+      ).length
+    }));
   };
 
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: { position: "top" },
-      tooltip: { backgroundColor: "#1F2937", titleColor: "#fff", bodyColor: "#fff" },
-    },
-    scales: {
-      y: { beginAtZero: true },
-    },
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-100 via-blue-50 to-indigo-100 p-8 flex items-center justify-center">
-        <div className="text-gray-600 text-lg">Loading reports...</div>
-      </div>
+  const toggleSection = (index) => {
+    setExpandedSections(prev => 
+      prev.map((expanded, i) => (i === index ? !expanded : expanded))
     );
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-blue-50 to-indigo-100 p-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header Section */}
-        <div className="flex flex-col sm:flex-row justify-between items-center mb-10">
-          <h1 className="text-4xl font-extrabold text-gray-800 mb-4 sm:mb-0 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">
-            Reports & Analytics
-          </h1>
-          <select
-            className="w-full sm:w-auto p-3 rounded-xl bg-white border border-gray-200 text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm hover:shadow-md transition-all duration-300 text-sm font-medium"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
+    <div className="max-w-6xl mx-auto p-6 bg-gray-50 min-h-screen">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">Reports Dashboard</h1>
+
+      {/* Filters */}
+      <div className="bg-white p-4 rounded-lg shadow-sm mb-6 flex gap-4">
+        <div className="flex-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Month</label>
+          <select 
+            value={selectedMonth} 
+            onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            <option value="today">Today</option>
-            <option value="week">Last Week</option>
-            <option value="month">Last Month</option>
-            <option value="all">All Time</option>
+            {months.map(m => (
+              <option key={m} value={m}>
+                {new Date(0, m - 1).toLocaleString('default', { month: 'long' })}
+              </option>
+            ))}
           </select>
         </div>
+        <div className="flex-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
+          <select 
+            value={selectedYear} 
+            onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {years.map(y => <option key={y} value={y}>{y}</option>)}
+          </select>
+        </div>
+      </div>
 
-        {/* Reports Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Appointment Trends */}
-          <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Appointment Trends</h2>
-            <div className="h-64">
-              <Line data={getAppointmentTrends()} options={chartOptions} />
+      {/* Report Sections */}
+      <div className="space-y-6">
+        {/* 1. Specializations */}
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <button 
+            onClick={() => toggleSection(0)}
+            className="w-full p-4 flex justify-between items-center text-left bg-gray-50 hover:bg-gray-100"
+          >
+            <h2 className="text-lg font-semibold text-gray-800">Bookings by Specialization</h2>
+            <span className="text-gray-500">{expandedSections[0] ? '▲' : '▼'}</span>
+          </button>
+          {expandedSections[0] && (
+            <div className="p-4 h-80">
+              <Bar data={specializationData} options={chartOptions(specMax)} plugins={[require('chartjs-plugin-datalabels')]} />
             </div>
-          </div>
+          )}
+        </div>
 
-          {/* Booking Status */}
-          <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Booking Status</h2>
-            <div className="h-64 flex justify-center">
-              <Pie data={getBookingStatus()} options={{ ...chartOptions, maintainAspectRatio: false }} />
+        {/* 2. Status */}
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <button 
+            onClick={() => toggleSection(1)}
+            className="w-full p-4 flex justify-between items-center text-left bg-gray-50 hover:bg-gray-100"
+          >
+            <h2 className="text-lg font-semibold text-gray-800">Bookings by Status</h2>
+            <span className="text-gray-500">{expandedSections[1] ? '▲' : '▼'}</span>
+          </button>
+          {expandedSections[1] && (
+            <div className="p-4 h-80">
+              <Bar data={statusData} options={chartOptions(statusMax)} plugins={[require('chartjs-plugin-datalabels')]} />
             </div>
-          </div>
+          )}
+        </div>
 
-          {/* Doctor Performance */}
-          <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Appointments per Doctor</h2>
-            <div className="h-64">
-              <Bar data={getDoctorPerformance()} options={chartOptions} />
+        {/* 3. Yearly Trend */}
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <button 
+            onClick={() => toggleSection(2)}
+            className="w-full p-4 flex justify-between items-center text-left bg-gray-50 hover:bg-gray-100"
+          >
+            <h2 className="text-lg font-semibold text-gray-800">Yearly Booking Trend</h2>
+            <span className="text-gray-500">{expandedSections[2] ? '▲' : '▼'}</span>
+          </button>
+          {expandedSections[2] && (
+            <div className="p-4 h-80">
+              <Bar data={yearlyData} options={chartOptions(yearlyMax)} plugins={[require('chartjs-plugin-datalabels')]} />
             </div>
-          </div>
+          )}
+        </div>
 
-          {/* Patient Activity */}
-          <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-all duration-300">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">New vs. Returning Patients</h2>
-            <div className="h-64 flex justify-center">
-              <Pie data={getPatientActivity()} options={{ ...chartOptions, maintainAspectRatio: false }} />
+        {/* 4. Doctor Performance */}
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <button 
+            onClick={() => toggleSection(3)}
+            className="w-full p-4 flex justify-between items-center text-left bg-gray-50 hover:bg-gray-100"
+          >
+            <h2 className="text-lg font-semibold text-gray-800">Doctor Performance</h2>
+            <span className="text-gray-500">{expandedSections[3] ? '▲' : '▼'}</span>
+          </button>
+          {expandedSections[3] && (
+            <div className="p-4">
+              <select
+                value={specializationFilter}
+                onChange={(e) => setSpecializationFilter(e.target.value)}
+                className="w-full px-3 py-2 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">All Specializations</option>
+                {specializations.map(spec => (
+                  <option key={spec} value={spec}>{spec}</option>
+                ))}
+              </select>
+              <div className="max-h-64 overflow-y-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-100 sticky top-0">
+                    <tr>
+                      <th className="px-4 py-2 text-gray-600">Doctor</th>
+                      <th className="px-4 py-2 text-gray-600">Total</th>
+                      <th className="px-4 py-2 text-gray-600">Completed</th>
+                      <th className="px-4 py-2 text-gray-600">Cancelled</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {getDoctorPerformance().map((doc, idx) => (
+                      <tr key={idx} className="border-t hover:bg-gray-50">
+                        <td className="px-4 py-2">{doc.name}</td>
+                        <td className="px-4 py-2 text-center">{doc.total}</td>
+                        <td className="px-4 py-2 text-center">{doc.completed}</td>
+                        <td className="px-4 py-2 text-center">{doc.cancelled}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+          )}
+        </div>
+
+        {/* 5. Cancellations */}
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <button 
+            onClick={() => toggleSection(4)}
+            className="w-full p-4 flex justify-between items-center text-left bg-gray-50 hover:bg-gray-100"
+          >
+            <h2 className="text-lg font-semibold text-gray-800">Cancellation Report</h2>
+            <span className="text-gray-500">{expandedSections[4] ? '▲' : '▼'}</span>
+          </button>
+          {expandedSections[4] && (
+            <div className="p-4">
+              <div className="max-h-64 overflow-y-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-100 sticky top-0">
+                    <tr>
+                      <th className="px-4 py-2 text-gray-600">Month</th>
+                      <th className="px-4 py-2 text-gray-600">Patient Cancelled</th>
+                      <th className="px-4 py-2 text-gray-600">Doctor Cancelled</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {getCancellationData().map((data, idx) => (
+                      <tr key={idx} className="border-t hover:bg-gray-50">
+                        <td className="px-4 py-2">{data.month}</td>
+                        <td className="px-4 py-2 text-center">{data.patientCancelled}</td>
+                        <td className="px-4 py-2 text-center">{data.doctorCancelled}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
