@@ -42,8 +42,9 @@ const AdminDashboard = () => {
             { to: "/admin-dashboard/dashboard", label: "Dashboard" },
             { to: "/admin-dashboard/add-doctor", label: "Add Doctor" },
             { to: "/admin-dashboard/doctors-list", label: "Doctors List" },
+            { to: "/admin-dashboard/patients-list", label: "Patients List" }, // Added Patients List
             { to: "/admin-dashboard/notifications", label: "Notifications" },
-            { to: "/admin-dashboard/reports", label: "Reports" }, // Added Reports
+            { to: "/admin-dashboard/reports", label: "Reports" },
           ].map((item) => (
             <li key={item.label}>
               <Link

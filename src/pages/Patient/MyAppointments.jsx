@@ -198,7 +198,7 @@ const MyAppointments = () => {
                 Cancel Appointment
               </h3>
               <textarea
-                className="w-full p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-lg"
+                className="w-full p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-lg text-black"
                 placeholder="Why are you cancelling this appointment?"
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}

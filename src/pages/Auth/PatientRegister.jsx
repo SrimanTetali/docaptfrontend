@@ -19,7 +19,10 @@ const PatientRegister = () => {
       data.age = Number(data.age); // Ensure age is sent as a Number
       console.log("Patient register data:", data);
       const response = await axios.post(`${API_URL}/patient/register`, data);
-      toast.success(response.data.message);
+      
+      // Display success message using toast
+      toast.success("Patient Registration successful!");
+      
       reset();
       navigate("/patient-login");
     } catch (error) {

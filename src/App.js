@@ -31,7 +31,7 @@ import DoctorsList from "./pages/Admin/DoctorsList";
 import AdminDashboardHome from "./pages/Admin/AdminDashboardHome";
 import Notifications from "./pages/Admin/Notifications";
 import Reports from "./pages/Admin/Reports"; // Import Reports
-
+import PatientsList from "./pages/Admin/PatientsList";
 // Home Dashboard Components
 import HomeDashboard from "./pages/Home/HomeDashboard";
 import Home from "./pages/Home/Home";
@@ -169,6 +169,7 @@ const App = () => {
             <Route path="dashboard" element={<AdminDashboardHome />} />
             <Route path="add-doctor" element={<AddDoctor />} />
             <Route path="doctors-list" element={<DoctorsList />} />
+            <Route path="patients-list" element={<PatientsList />} /> {/* Added Patients List */}
             <Route path="notifications" element={<Notifications />} />
             <Route path="reports" element={<Reports />} /> {/* Added Reports */}
           </Route>
